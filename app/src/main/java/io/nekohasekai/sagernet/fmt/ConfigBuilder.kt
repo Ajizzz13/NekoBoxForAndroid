@@ -404,29 +404,31 @@ fun buildConfig(
 
                 // internal & external
                 currentOutbound.apply {
-                    if (DataStore.enableGameAutoStabilizer) {
-                        _hack_config_map["tcp_fast_open"] = true
-                        _hack_config_map["tcp_multi_path"] = true
-                        _hack_config_map["udp_fragment"] = true
-                    }
-                    // udp over tcp
-                    try {
-                        val sUoT = bean.javaClass.getField("sUoT").get(bean)
-                        if (sUoT is Boolean && sUoT) {
-                            _hack_config_map["udp_over_tcp"] = true
+                    if (this !is Outbound_URLTestOptions) {
+                        if (DataStore.enableGameAutoStabilizer) {
+                            _hack_config_map["tcp_fast_open"] = true
+                            _hack_config_map["tcp_multi_path"] = true
+                            _hack_config_map["udp_fragment"] = true
                         }
-                    } catch (_: Exception) {
-                    }
+                        // udp over tcp
+                        try {
+                            val sUoT = bean.javaClass.getField("sUoT").get(bean)
+                            if (sUoT is Boolean && sUoT) {
+                                _hack_config_map["udp_over_tcp"] = true
+                            }
+                        } catch (_: Exception) {
+                        }
 
-                    // domain_strategy
-                    pastEntity?.requireBean()?.apply {
-                        // don't loopback
-                        if (defaultServerDomainStrategy != "" && !serverAddress.isIpAddress()) {
-                            domainListDNSDirectForce.add("full:$serverAddress")
+                        // domain_strategy
+                        pastEntity?.requireBean()?.apply {
+                            // don't loopback
+                            if (defaultServerDomainStrategy != "" && !serverAddress.isIpAddress()) {
+                                domainListDNSDirectForce.add("full:$serverAddress")
+                            }
                         }
+                        _hack_config_map["domain_strategy"] =
+                            if (forTest) "" else defaultServerDomainStrategy
                     }
-                    _hack_config_map["domain_strategy"] =
-                        if (forTest) "" else defaultServerDomainStrategy
 
                     _hack_config_map["tag"] = tagOut
 
