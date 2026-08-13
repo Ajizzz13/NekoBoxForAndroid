@@ -33,35 +33,48 @@ open class RoomPreferenceDataStore(private val kvPairDao: KeyValuePair.Dao) :
 
     fun putLong(key: String, value: Long?) = if (value == null) remove(key) else putLong(key, value)
     override fun putBoolean(key: String, value: Boolean) {
+        if (getBoolean(key) == value) return
         kvPairDao.put(KeyValuePair(key).put(value))
         fireChangeListener(key)
     }
 
     override fun putFloat(key: String, value: Float) {
+        if (getFloat(key) == value) return
         kvPairDao.put(KeyValuePair(key).put(value))
         fireChangeListener(key)
     }
 
     override fun putInt(key: String, value: Int) {
+        if (getInt(key) == value) return
         kvPairDao.put(KeyValuePair(key).put(value.toLong()))
         fireChangeListener(key)
     }
 
     override fun putLong(key: String, value: Long) {
+        if (getLong(key) == value) return
         kvPairDao.put(KeyValuePair(key).put(value))
         fireChangeListener(key)
     }
 
-    override fun putString(key: String, value: String?) = if (value == null) remove(key) else {
-        kvPairDao.put(KeyValuePair(key).put(value))
-        fireChangeListener(key)
+    override fun putString(key: String, value: String?) {
+        if (value == null) {
+            remove(key)
+        } else {
+            if (getString(key) == value) return
+            kvPairDao.put(KeyValuePair(key).put(value))
+            fireChangeListener(key)
+        }
     }
 
-    override fun putStringSet(key: String, values: MutableSet<String>?) =
-        if (values == null) remove(key) else {
+    override fun putStringSet(key: String, values: MutableSet<String>?) {
+        if (values == null) {
+            remove(key)
+        } else {
+            if (getStringSet(key) == values) return
             kvPairDao.put(KeyValuePair(key).put(values))
             fireChangeListener(key)
         }
+    }
 
     fun remove(key: String) {
         kvPairDao.delete(key)
