@@ -81,8 +81,11 @@ open class RoomPreferenceDataStore(private val kvPairDao: KeyValuePair.Dao) :
         fireChangeListener(key)
     }
 
+    var isInflation = false
+
     private val listeners = HashSet<OnPreferenceDataStoreChangeListener>()
     private fun fireChangeListener(key: String) {
+        if (isInflation) return
         val listeners = synchronized(listeners) {
             listeners.toList()
         }

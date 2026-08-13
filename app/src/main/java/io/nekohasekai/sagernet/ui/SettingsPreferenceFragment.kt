@@ -83,7 +83,12 @@ class SettingsPreferenceFragment : PreferenceFragmentCompat() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         preferenceManager.preferenceDataStore = DataStore.configurationStore
         DataStore.initGlobal()
-        addPreferencesFromResource(R.xml.global_preferences)
+        DataStore.configurationStore.isInflation = true
+        try {
+            addPreferencesFromResource(R.xml.global_preferences)
+        } finally {
+            DataStore.configurationStore.isInflation = false
+        }
 
         val appTheme = findPreference<ColorPickerPreference>(Key.APP_THEME)!!
         appTheme.setOnPreferenceChangeListener { _, newTheme ->
@@ -129,8 +134,12 @@ class SettingsPreferenceFragment : PreferenceFragmentCompat() {
         globalCustomConfig.useConfigStore(Key.GLOBAL_CUSTOM_CONFIG)
 
         logLevel.dialogLayoutResource = R.layout.layout_loglevel_help
-        logLevel.setOnPreferenceChangeListener { _, _ ->
-            needRestart()
+        logLevel.setOnPreferenceChangeListener { _, newValue ->
+            if (!isInitializing) {
+                val newStr = newValue as? String
+                val saved = DataStore.configurationStore.getString(Key.LOG_LEVEL, newStr)
+                if (saved != newStr) needRestart()
+            }
             true
         }
         logLevel.setOnLongClickListener {
