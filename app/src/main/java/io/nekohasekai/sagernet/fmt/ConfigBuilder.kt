@@ -205,7 +205,7 @@ fun buildConfig(
                     else -> "mixed"
                 }
                 if (DataStore.enableGameAutoStabilizer) {
-                    _hack_config_map["udp_timeout"] = "15s"
+                    _hack_config_map["udp_timeout"] = "300s"
                 }
                 endpoint_independent_nat = true
                 mtu = DataStore.mtu
@@ -385,6 +385,8 @@ fun buildConfig(
                 currentOutbound.apply {
                     if (DataStore.enableGameAutoStabilizer) {
                         _hack_config_map["tcp_fast_open"] = true
+                        _hack_config_map["tcp_multi_path"] = true
+                        _hack_config_map["udp_fragment"] = true
                     }
                     // udp over tcp
                     try {
