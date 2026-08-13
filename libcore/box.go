@@ -21,7 +21,6 @@ import (
 
 	box "github.com/sagernet/sing-box"
 	"github.com/sagernet/sing-box/common/conntrack"
-	"github.com/sagernet/sing-box/common/dialer"
 	"github.com/sagernet/sing-box/constant"
 	"github.com/sagernet/sing-box/option"
 	"github.com/sagernet/sing/service"
@@ -29,7 +28,6 @@ import (
 )
 
 func init() {
-	dialer.DoNotSelectInterface = true
 }
 
 var mainInstance *BoxInstance
