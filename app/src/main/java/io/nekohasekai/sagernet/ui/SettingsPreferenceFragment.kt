@@ -31,8 +31,16 @@ class SettingsPreferenceFragment : PreferenceFragmentCompat() {
         listView.layoutManager = FixedLinearLayoutManager(listView)
     }
 
-    private val reloadListener = Preference.OnPreferenceChangeListener { _, _ ->
-        needReload()
+    private val reloadListener = Preference.OnPreferenceChangeListener { pref, newValue ->
+        val isChanged = when (pref) {
+            is SwitchPreference -> pref.isChecked != (newValue as? Boolean)
+            is ListPreference -> pref.value != (newValue as? String)
+            is EditTextPreference -> pref.text != (newValue as? String)
+            else -> true
+        }
+        if (isChanged) {
+            needReload()
+        }
         true
     }
 
