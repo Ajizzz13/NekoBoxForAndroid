@@ -55,18 +55,21 @@ class SettingsPreferenceFragment : PreferenceFragmentCompat() {
         
         val isChanged = when (pref) {
             is TwoStatePreference -> {
-                val saved = DataStore.configurationStore.getBoolean(pref.key, pref.isChecked)
-                saved != (newValue as? Boolean)
+                val newBool = newValue as? Boolean ?: false
+                val saved = DataStore.configurationStore.getBoolean(pref.key, newBool)
+                saved != newBool
             }
             is ListPreference -> {
-                val saved = DataStore.configurationStore.getString(pref.key, pref.value)
-                saved != (newValue as? String)
+                val newStr = newValue as? String
+                val saved = DataStore.configurationStore.getString(pref.key, newStr)
+                saved != newStr
             }
             is EditTextPreference -> {
-                val saved = DataStore.configurationStore.getString(pref.key, pref.text)
-                saved != (newValue as? String)
+                val newStr = newValue as? String
+                val saved = DataStore.configurationStore.getString(pref.key, newStr)
+                saved != newStr
             }
-            else -> true
+            else -> false
         }
         if (isChanged) {
             needReload()
