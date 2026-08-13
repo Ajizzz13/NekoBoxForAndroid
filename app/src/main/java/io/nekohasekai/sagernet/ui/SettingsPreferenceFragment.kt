@@ -33,9 +33,9 @@ class SettingsPreferenceFragment : PreferenceFragmentCompat() {
 
     private val reloadListener = Preference.OnPreferenceChangeListener { pref, newValue ->
         val isChanged = when (pref) {
-            is SwitchPreference -> pref.sharedPreferences?.getBoolean(pref.key, pref.isChecked) != (newValue as? Boolean)
-            is ListPreference -> pref.sharedPreferences?.getString(pref.key, pref.value) != (newValue as? String)
-            is EditTextPreference -> pref.sharedPreferences?.getString(pref.key, pref.text) != (newValue as? String)
+            is SwitchPreference -> DataStore.configurationStore.getBoolean(pref.key, pref.isChecked) != (newValue as? Boolean)
+            is ListPreference -> DataStore.configurationStore.getString(pref.key, pref.value) != (newValue as? String)
+            is EditTextPreference -> DataStore.configurationStore.getString(pref.key, pref.text) != (newValue as? String)
             else -> true
         }
         if (isChanged) {
