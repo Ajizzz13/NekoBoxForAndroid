@@ -38,7 +38,7 @@ class SettingsPreferenceFragment : PreferenceFragmentCompat() {
         view?.post {
             isInitializing = false
             if (::isProxyApps.isInitialized) {
-                isProxyApps.isChecked = DataStore.proxyApps
+                isProxyApps.notifyChanged()
             }
             if (::globalCustomConfig.isInitialized) {
                 globalCustomConfig.notifyChanged()
