@@ -385,7 +385,10 @@ fun buildConfig(
                                 outbounds = comboTags
                                 url = "http://cp.cloudflare.com/"
                                 interval = null
+                                tolerance = null
                                 _hack_config_map.put("interval", "${bean.interval}s")
+                                _hack_config_map.put("idle_timeout", "${bean.interval * 2}s")
+                                _hack_config_map.put("tolerance", 50)
                             }
                         }
 
