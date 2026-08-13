@@ -31,7 +31,28 @@ class SettingsPreferenceFragment : PreferenceFragmentCompat() {
         listView.layoutManager = FixedLinearLayoutManager(listView)
     }
 
+    private var isInitializing = true
+
+    override fun onResume() {
+        super.onResume()
+        view?.post { isInitializing = false }
+        
+        if (::isProxyApps.isInitialized) {
+            isProxyApps.isChecked = DataStore.proxyApps
+        }
+        if (::globalCustomConfig.isInitialized) {
+            globalCustomConfig.notifyChanged()
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        isInitializing = true
+    }
+
     private val reloadListener = Preference.OnPreferenceChangeListener { pref, newValue ->
+        if (isInitializing) return@OnPreferenceChangeListener true
+        
         val isChanged = when (pref) {
             is TwoStatePreference -> {
                 val saved = DataStore.configurationStore.getBoolean(pref.key, pref.isChecked)
@@ -147,7 +168,7 @@ class SettingsPreferenceFragment : PreferenceFragmentCompat() {
         profileTrafficStatistics.isEnabled = speedInterval.value.toString() != "0"
         speedInterval.setOnPreferenceChangeListener { _, newValue ->
             profileTrafficStatistics.isEnabled = newValue.toString() != "0"
-            needReload()
+            if (!isInitializing) needReload()
             true
         }
 
@@ -162,7 +183,7 @@ class SettingsPreferenceFragment : PreferenceFragmentCompat() {
         val enableClashAPI = findPreference<SwitchPreference>(Key.ENABLE_CLASH_API)!!
         enableClashAPI.setOnPreferenceChangeListener { _, newValue ->
             (activity as MainActivity?)?.refreshNavMenu(newValue as Boolean)
-            needReload()
+            if (!isInitializing) needReload()
             true
         }
 
@@ -189,16 +210,6 @@ class SettingsPreferenceFragment : PreferenceFragmentCompat() {
         acquireWakeLock.onPreferenceChangeListener = reloadListener
         globalCustomConfig.onPreferenceChangeListener = reloadListener
     }
-
-    override fun onResume() {
-        super.onResume()
-
-        if (::isProxyApps.isInitialized) {
-            isProxyApps.isChecked = DataStore.proxyApps
-        }
-        if (::globalCustomConfig.isInitialized) {
-            globalCustomConfig.notifyChanged()
-        }
-    }
+    // Removed duplicate onResume
 
 }
