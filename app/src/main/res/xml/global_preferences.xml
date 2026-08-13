@@ -104,13 +104,13 @@
             app:title="@string/proxied_apps" />
         <SwitchPreference
             app:key="enable_tls_fragment"
-            app:title="Loose DPI (TLS Fragment)"
-            app:summary="Potong paket SNI untuk bypass Satpam (Telkomsel DPI)"
+            app:title="Loose DPI"
+            app:summary="Potong paket SNI untuk bypass inspeksi jaringan"
             app:defaultValue="false" />
         <SwitchPreference
             app:key="enable_game_auto_stabilizer"
-            app:title="Game Auto-Stabilizer (Anti-Lag)"
-            app:summary="Otomatis paksa TCP Fast-Open, 15s UDP Timeout, &amp; Bypass Sniffing"
+            app:title="Game Auto Stabilizer"
+            app:summary="Otomatis optimasi koneksi untuk mengurangi lag dan ping tinggi"
             app:defaultValue="false" />
         <SwitchPreference
             app:icon="@drawable/ic_baseline_legend_toggle_24"

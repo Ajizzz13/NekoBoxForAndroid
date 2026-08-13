@@ -1,0 +1,30 @@
+--- app/src/main/java/io/nekohasekai/sagernet/ui/ConfigurationFragment.kt
++++ app/src/main/java/io/nekohasekai/sagernet/ui/ConfigurationFragment.kt
+@@ -10,2 +10,3 @@
+ import androidx.core.content.ContextCompat
++import com.google.android.material.switchmaterial.SwitchMaterial
+ import androidx.fragment.app.Fragment
+@@ -206,2 +207,24 @@
+ 
++        val switchLooseDpi = view.findViewById<SwitchMaterial>(R.id.switch_loose_dpi)
++        val switchAutoStabilizer = view.findViewById<SwitchMaterial>(R.id.switch_auto_stabilizer)
++        if (switchLooseDpi != null) {
++            switchLooseDpi.isChecked = DataStore.enableTlsFragment
++            switchLooseDpi.setOnCheckedChangeListener { _, isChecked ->
++                DataStore.enableTlsFragment = isChecked
++                if (DataStore.serviceState.started) {
++                    SagerNet.reloadService()
++                }
++            }
++        }
++        if (switchAutoStabilizer != null) {
++            switchAutoStabilizer.isChecked = DataStore.enableGameAutoStabilizer
++            switchAutoStabilizer.setOnCheckedChangeListener { _, isChecked ->
++                DataStore.enableGameAutoStabilizer = isChecked
++                if (DataStore.serviceState.started) {
++                    SagerNet.reloadService()
++                }
++            }
++        }
++
+         groupPager.adapter = adapter

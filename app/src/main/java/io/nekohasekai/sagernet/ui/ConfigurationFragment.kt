@@ -34,6 +34,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import io.nekohasekai.sagernet.GroupOrder
@@ -206,6 +207,27 @@ class ConfigurationFragment @JvmOverloads constructor(
 
         groupPager.adapter = adapter
         groupPager.offscreenPageLimit = 2
+
+        val switchLooseDpi = view.findViewById<SwitchMaterial>(R.id.switch_loose_dpi)
+        val switchAutoStabilizer = view.findViewById<SwitchMaterial>(R.id.switch_auto_stabilizer)
+        if (switchLooseDpi != null) {
+            switchLooseDpi.isChecked = DataStore.enableTlsFragment
+            switchLooseDpi.setOnCheckedChangeListener { _, isChecked ->
+                DataStore.enableTlsFragment = isChecked
+                if (DataStore.serviceState.started) {
+                    SagerNet.reloadService()
+                }
+            }
+        }
+        if (switchAutoStabilizer != null) {
+            switchAutoStabilizer.isChecked = DataStore.enableGameAutoStabilizer
+            switchAutoStabilizer.setOnCheckedChangeListener { _, isChecked ->
+                DataStore.enableGameAutoStabilizer = isChecked
+                if (DataStore.serviceState.started) {
+                    SagerNet.reloadService()
+                }
+            }
+        }
 
         TabLayoutMediator(tabLayout, groupPager) { tab, position ->
             if (adapter.groupList.size > position) {
