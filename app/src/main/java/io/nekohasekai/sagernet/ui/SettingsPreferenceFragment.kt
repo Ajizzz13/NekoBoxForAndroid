@@ -171,7 +171,9 @@ class SettingsPreferenceFragment : PreferenceFragmentCompat() {
         profileTrafficStatistics.isEnabled = speedInterval.value.toString() != "0"
         speedInterval.setOnPreferenceChangeListener { _, newValue ->
             profileTrafficStatistics.isEnabled = newValue.toString() != "0"
-            if (!isInitializing) needReload()
+            val newStr = newValue as? String
+            val saved = DataStore.configurationStore.getString(Key.SPEED_INTERVAL, newStr)
+            if (saved != newStr) needReload()
             true
         }
 
@@ -186,7 +188,9 @@ class SettingsPreferenceFragment : PreferenceFragmentCompat() {
         val enableClashAPI = findPreference<SwitchPreference>(Key.ENABLE_CLASH_API)!!
         enableClashAPI.setOnPreferenceChangeListener { _, newValue ->
             (activity as MainActivity?)?.refreshNavMenu(newValue as Boolean)
-            if (!isInitializing) needReload()
+            val newBool = newValue as? Boolean ?: false
+            val saved = DataStore.configurationStore.getBoolean(Key.ENABLE_CLASH_API, newBool)
+            if (saved != newBool) needReload()
             true
         }
 
