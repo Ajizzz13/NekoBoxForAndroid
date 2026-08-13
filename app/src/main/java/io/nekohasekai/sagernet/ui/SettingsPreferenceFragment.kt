@@ -35,13 +35,14 @@ class SettingsPreferenceFragment : PreferenceFragmentCompat() {
 
     override fun onResume() {
         super.onResume()
-        view?.post { isInitializing = false }
-        
-        if (::isProxyApps.isInitialized) {
-            isProxyApps.isChecked = DataStore.proxyApps
-        }
-        if (::globalCustomConfig.isInitialized) {
-            globalCustomConfig.notifyChanged()
+        view?.post {
+            isInitializing = false
+            if (::isProxyApps.isInitialized) {
+                isProxyApps.isChecked = DataStore.proxyApps
+            }
+            if (::globalCustomConfig.isInitialized) {
+                globalCustomConfig.notifyChanged()
+            }
         }
     }
 
