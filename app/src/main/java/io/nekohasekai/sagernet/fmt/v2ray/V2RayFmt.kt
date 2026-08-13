@@ -620,6 +620,9 @@ fun buildSingBoxOutboundTLS(bean: StandardV2RayBean): OutboundTLSOptions? {
                 }
             }
         }
+        if (DataStore.enableTlsFragment) {
+            fragment = true
+        }
     }
 }
 

@@ -103,6 +103,11 @@
             app:summary="@string/proxied_apps_summary"
             app:title="@string/proxied_apps" />
         <SwitchPreference
+            app:key="enable_tls_fragment"
+            app:title="Loose DPI (TLS Fragment)"
+            app:summary="Potong paket SNI untuk bypass Satpam (Telkomsel DPI)"
+            app:defaultValue="false" />
+        <SwitchPreference
             app:icon="@drawable/ic_baseline_legend_toggle_24"
             app:key="bypassLan"
             app:title="@string/route_opt_bypass_lan" />

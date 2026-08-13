@@ -71,6 +71,7 @@ class SettingsPreferenceFragment : PreferenceFragmentCompat() {
         val trafficSniffing = findPreference<Preference>(Key.TRAFFIC_SNIFFING)!!
 
         val bypassLan = findPreference<SwitchPreference>(Key.BYPASS_LAN)!!
+        val enableTlsFragment = findPreference<SwitchPreference>("enable_tls_fragment")!!
         val bypassLanInCore = findPreference<SwitchPreference>(Key.BYPASS_LAN_IN_CORE)!!
 
         val remoteDns = findPreference<EditTextPreference>(Key.REMOTE_DNS)!!
@@ -152,6 +153,7 @@ class SettingsPreferenceFragment : PreferenceFragmentCompat() {
         appendHttpProxy.onPreferenceChangeListener = reloadListener
         showDirectSpeed.onPreferenceChangeListener = reloadListener
         trafficSniffing.onPreferenceChangeListener = reloadListener
+        enableTlsFragment.onPreferenceChangeListener = reloadListener
         bypassLan.onPreferenceChangeListener = reloadListener
         bypassLanInCore.onPreferenceChangeListener = reloadListener
         mtu.onPreferenceChangeListener = reloadListener
