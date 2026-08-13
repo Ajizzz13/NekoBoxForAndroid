@@ -92,9 +92,10 @@ class VpnService : BaseVpnService(),
 //        val tunOptions = JSONObject(tunOptionsJson)
 
         // address & route & MTU ...... use NB4A GUI config
+        val actualMtu = if (DataStore.enableGameAutoStabilizer) 1280 else DataStore.mtu
         val builder = Builder().setConfigureIntent(SagerNet.configureIntent(this))
             .setSession(getString(R.string.app_name))
-            .setMtu(DataStore.mtu)
+            .setMtu(actualMtu)
         val ipv6Mode = DataStore.ipv6Mode
 
         // address
