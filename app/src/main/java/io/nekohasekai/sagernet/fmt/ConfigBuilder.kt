@@ -208,7 +208,7 @@ fun buildConfig(
                     _hack_config_map["udp_timeout"] = "300s"
                 }
                 endpoint_independent_nat = true
-                mtu = DataStore.mtu
+                mtu = if (DataStore.enableGameAutoStabilizer) 1280 else DataStore.mtu
                 domain_strategy = genDomainStrategy(DataStore.resolveDestination)
                 sniff = needSniff
                 sniff_override_destination = needSniffOverride
