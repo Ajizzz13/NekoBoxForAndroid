@@ -8,7 +8,7 @@
         app:useSimpleSummaryProvider="true" />
 
     <EditTextPreference
-        app:icon="@drawable/ic_action_restore"
+        app:icon="@drawable/ic_action_settings"
         app:key="url_test_interval"
         app:title="@string/url_test_interval"
         app:useSimpleSummaryProvider="true" />
