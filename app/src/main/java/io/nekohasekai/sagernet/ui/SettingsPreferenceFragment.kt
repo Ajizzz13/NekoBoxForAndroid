@@ -198,6 +198,12 @@ class SettingsPreferenceFragment : PreferenceFragmentCompat() {
         appendHttpProxy.onPreferenceChangeListener = reloadListener
         showDirectSpeed.onPreferenceChangeListener = reloadListener
         trafficSniffing.onPreferenceChangeListener = reloadListener
+        
+        val enableTlsFragment = findPreference<SwitchPreference>("enable_tls_fragment")
+        if (enableTlsFragment != null) enableTlsFragment.onPreferenceChangeListener = reloadListener
+        
+        val enableGameAutoStabilizer = findPreference<SwitchPreference>("enable_game_auto_stabilizer")
+        if (enableGameAutoStabilizer != null) enableGameAutoStabilizer.onPreferenceChangeListener = reloadListener
 
         bypassLan.onPreferenceChangeListener = reloadListener
         bypassLanInCore.onPreferenceChangeListener = reloadListener

@@ -103,6 +103,16 @@
             app:summary="@string/proxied_apps_summary"
             app:title="@string/proxied_apps" />
         <SwitchPreference
+            app:key="enable_tls_fragment"
+            app:title="Loose DPI"
+            app:summary="Potong paket SNI untuk bypass inspeksi jaringan"
+            app:defaultValue="false" />
+        <SwitchPreference
+            app:key="enable_game_auto_stabilizer"
+            app:title="Game Auto Stabilizer"
+            app:summary="Otomatis optimasi koneksi untuk mengurangi lag dan ping tinggi"
+            app:defaultValue="false" />
+        <SwitchPreference
             app:icon="@drawable/ic_baseline_legend_toggle_24"
             app:key="bypassLan"
             app:title="@string/route_opt_bypass_lan" />
