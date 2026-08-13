@@ -191,7 +191,7 @@ class ComboSettingsActivity : ProfileSettingsActivity<ComboBean>(R.layout.layout
     }
 
     fun testProfileContains(profile: ProxyEntity, anotherProfile: ProxyEntity): Boolean {
-        if (profile.type != 8 || anotherProfile.type != 8) return false
+        if (profile.type != ProxyEntity.TYPE_COMBO || anotherProfile.type != ProxyEntity.TYPE_COMBO) return false
         if (profile.id == anotherProfile.id) return true
         val proxies = profile.comboBean!!.proxies
         if (proxies.contains(anotherProfile.id)) return true

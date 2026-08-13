@@ -385,7 +385,7 @@ fun buildConfig(
                                 outbounds = comboTags
                                 url = "http://cp.cloudflare.com/"
                                 interval = null
-                                _hack_config_map["interval"] = "${bean.interval}s"
+                                _hack_config_map.put("interval", "${bean.interval}s")
                             }
                         }
 
