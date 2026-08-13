@@ -131,11 +131,9 @@ fun Project.setupAppCommon() {
             }
         }
         buildTypes {
-            val key = signingConfigs.findByName("release")
-            if (key != null) {
-                getByName("release").signingConfig = key
-                getByName("debug").signingConfig = key
-            }
+            val key = signingConfigs.findByName("release") ?: signingConfigs.getByName("debug")
+            getByName("release").signingConfig = key
+            getByName("debug").signingConfig = key
         }
     }
 }
