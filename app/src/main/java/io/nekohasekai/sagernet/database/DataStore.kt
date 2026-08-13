@@ -109,6 +109,7 @@ object DataStore : OnPreferenceDataStoreChangeListener {
 
     var allowAccess by configurationStore.boolean(Key.ALLOW_ACCESS)
     var speedInterval by configurationStore.stringToInt(Key.SPEED_INTERVAL) { 1000 }
+    var urlTestInterval by profileCacheStore.stringToInt("url_test_interval") { 5 }
     var showGroupInNotification by configurationStore.boolean("showGroupInNotification")
 
     var globalCustomConfig by configurationStore.string(Key.GLOBAL_CUSTOM_CONFIG) { "" }

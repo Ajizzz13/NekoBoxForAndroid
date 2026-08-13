@@ -79,6 +79,7 @@ import io.nekohasekai.sagernet.ktx.startFilesForResult
 import io.nekohasekai.sagernet.ktx.tryToShow
 import io.nekohasekai.sagernet.plugin.PluginManager
 import io.nekohasekai.sagernet.ui.profile.ChainSettingsActivity
+import io.nekohasekai.sagernet.ui.profile.ComboSettingsActivity
 import io.nekohasekai.sagernet.ui.profile.HttpSettingsActivity
 import io.nekohasekai.sagernet.ui.profile.HysteriaSettingsActivity
 import io.nekohasekai.sagernet.ui.profile.MieruSettingsActivity
@@ -445,6 +446,10 @@ class ConfigurationFragment @JvmOverloads constructor(
 
             R.id.action_new_chain -> {
                 startActivity(Intent(requireActivity(), ChainSettingsActivity::class.java))
+            }
+
+            R.id.action_new_combo -> {
+                startActivity(Intent(requireActivity(), ComboSettingsActivity::class.java))
             }
 
             R.id.action_update_subscription -> {
@@ -1609,7 +1614,7 @@ class ConfigurationFragment @JvmOverloads constructor(
                     }
                 }
 
-                val selectOrChain = select || proxyEntity.type == ProxyEntity.TYPE_CHAIN
+                val selectOrChain = select || proxyEntity.type == ProxyEntity.TYPE_CHAIN || proxyEntity.type == ProxyEntity.TYPE_COMBO
                 shareLayout.isGone = selectOrChain
                 editButton.isGone = select
                 removeButton.isGone = select
@@ -1654,7 +1659,7 @@ class ConfigurationFragment @JvmOverloads constructor(
                         popup.show()
                     }
 
-                    if (!(select || proxyEntity.type == ProxyEntity.TYPE_CHAIN)) {
+                    if (!(select || proxyEntity.type == ProxyEntity.TYPE_CHAIN || proxyEntity.type == ProxyEntity.TYPE_COMBO)) {
                         onMainDispatcher {
                             shareLayer.setBackgroundColor(Color.TRANSPARENT)
                             shareButton.setImageResource(R.drawable.ic_social_share)

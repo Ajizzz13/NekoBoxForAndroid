@@ -11,6 +11,8 @@ import io.nekohasekai.sagernet.fmt.ConfigBuildResult.IndexEntity
 import io.nekohasekai.sagernet.fmt.hysteria.HysteriaBean
 import io.nekohasekai.sagernet.fmt.hysteria.buildSingBoxOutboundHysteriaBean
 import io.nekohasekai.sagernet.fmt.internal.ChainBean
+import io.nekohasekai.sagernet.fmt.internal.ComboBean
+import io.nekohasekai.sagernet.fmt.mieru.MieruBean
 import io.nekohasekai.sagernet.fmt.shadowsocks.ShadowsocksBean
 import io.nekohasekai.sagernet.fmt.shadowsocks.buildSingBoxOutboundShadowsocksBean
 import io.nekohasekai.sagernet.fmt.socks.SOCKSBean
@@ -28,6 +30,9 @@ import io.nekohasekai.sagernet.ktx.mkPort
 import io.nekohasekai.sagernet.utils.PackageCache
 import moe.matsuri.nb4a.*
 import moe.matsuri.nb4a.SingBoxOptions.*
+import moe.matsuri.nb4a.SingBoxOptions.MultiplexOptions
+import moe.matsuri.nb4a.SingBoxOptions.Outbound_SelectorOptions
+import moe.matsuri.nb4a.SingBoxOptions.Outbound_URLTestOptions
 import moe.matsuri.nb4a.plugin.Plugins
 import moe.matsuri.nb4a.proxy.anytls.AnyTLSBean
 import moe.matsuri.nb4a.proxy.anytls.buildSingBoxOutboundAnyTLSBean
@@ -367,6 +372,22 @@ fun buildConfig(
 
                         is AnyTLSBean ->
                             buildSingBoxOutboundAnyTLSBean(bean)
+
+                        is ComboBean -> {
+                            val comboTags = ArrayList<String>()
+                            for (childId in bean.proxies) {
+                                val childEntity = SagerDatabase.proxyDao.getById(childId) ?: continue
+                                val childTag = buildChain(childId, childEntity)
+                                comboTags.add(childTag)
+                            }
+                            Outbound_URLTestOptions().apply {
+                                type = "urltest"
+                                outbounds = comboTags
+                                url = "http://cp.cloudflare.com/"
+                                interval = null
+                                _hack_config_map["interval"] = "${bean.interval}s"
+                            }
+                        }
 
                         else -> throw IllegalStateException("can't reach")
                     }

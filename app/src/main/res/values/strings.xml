@@ -223,6 +223,8 @@
     <string name="action_ssh" translatable="false">SSH</string>
     <string name="action_wireguard" translatable="false">WireGuard</string>
     <string name="action_tuic" translatable="false">TUIC</string>
+    <string name="profile_type_chain">Chain</string>
+    <string name="profile_type_combo">Combo</string>
     <string name="proxy_chain">Proxy Chain</string>
     <string name="custom_config">Custom Config</string>
     <string name="balancer">Balancer</string>
@@ -230,6 +232,7 @@
     <string name="balancer_type">Type</string>
     <string name="balancer_strategy">Strategy</string>
     <string name="chain_settings">Chain Settings</string>
+    <string name="combo_settings">Combo Settings</string>
     <string name="config_settings">Config Settings</string>
     <string name="circular_reference">Circular reference</string>
     <string name="circular_reference_sum">The route cannot contain itself.</string>

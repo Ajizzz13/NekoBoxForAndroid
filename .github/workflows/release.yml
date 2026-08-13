@@ -60,6 +60,11 @@ jobs:
         with:
           path: ~/.gradle
           key: gradle-oss-${{ hashFiles('**/*.gradle.kts') }}
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
       - name: Gradle Build
         env:
           BUILD_PLUGIN: none
@@ -124,6 +129,11 @@ jobs:
       - name: Checkout Library
         run: |
           git submodule update --init 'app/*'
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
       - name: Gradle Build
         run: |
           echo "sdk.dir=${ANDROID_HOME}" > local.properties
