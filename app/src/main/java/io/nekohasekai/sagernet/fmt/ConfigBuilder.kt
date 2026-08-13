@@ -389,6 +389,7 @@ fun buildConfig(
                                 _hack_config_map.put("interval", "${bean.interval}s")
                                 _hack_config_map.put("idle_timeout", "${bean.interval * 2}s")
                                 _hack_config_map.put("tolerance", 50)
+                                _hack_config_map.put("interrupt_exist_connections", true)
                             }
                         }
 
