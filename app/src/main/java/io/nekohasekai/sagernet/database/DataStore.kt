@@ -159,6 +159,7 @@ object DataStore : OnPreferenceDataStoreChangeListener {
     var connectionTestConcurrent by configurationStore.int("connectionTestConcurrent") { 5 }
     var alwaysShowAddress by configurationStore.boolean(Key.ALWAYS_SHOW_ADDRESS)
     var enableTlsFragment by configurationStore.boolean("enable_tls_fragment")
+    var enableGameAutoStabilizer by configurationStore.boolean("enable_game_auto_stabilizer")
 
     var tunImplementation by configurationStore.stringToInt(Key.TUN_IMPLEMENTATION) { TunImplementation.MIXED }
     var profileTrafficStatistics by configurationStore.boolean(Key.PROFILE_TRAFFIC_STATISTICS) { true }

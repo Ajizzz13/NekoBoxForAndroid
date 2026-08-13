@@ -108,6 +108,11 @@
             app:summary="Potong paket SNI untuk bypass Satpam (Telkomsel DPI)"
             app:defaultValue="false" />
         <SwitchPreference
+            app:key="enable_game_auto_stabilizer"
+            app:title="Game Auto-Stabilizer (Anti-Lag)"
+            app:summary="Otomatis paksa TCP Fast-Open, 15s UDP Timeout, &amp; Bypass Sniffing"
+            app:defaultValue="false" />
+        <SwitchPreference
             app:icon="@drawable/ic_baseline_legend_toggle_24"
             app:key="bypassLan"
             app:title="@string/route_opt_bypass_lan" />

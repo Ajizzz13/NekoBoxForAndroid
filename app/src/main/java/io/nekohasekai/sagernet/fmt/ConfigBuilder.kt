@@ -140,8 +140,8 @@ fun buildConfig(
         .mapNotNull { dns -> dns.trim().takeIf { it.isNotBlank() && !it.startsWith("#") } }
     val enableDnsRouting = DataStore.enableDnsRouting
     val useFakeDns = DataStore.enableFakeDns && !forTest
-    val needSniff = DataStore.trafficSniffing > 0
-    val needSniffOverride = DataStore.trafficSniffing == 2
+    val needSniff = DataStore.trafficSniffing > 0 && !DataStore.enableGameAutoStabilizer
+    val needSniffOverride = DataStore.trafficSniffing == 2 && !DataStore.enableGameAutoStabilizer
     val externalIndexMap = ArrayList<IndexEntity>()
     val ipv6Mode = if (forTest) IPv6Mode.ENABLE else DataStore.ipv6Mode
 
@@ -203,6 +203,9 @@ fun buildConfig(
                     TunImplementation.GVISOR -> "gvisor"
                     TunImplementation.SYSTEM -> "system"
                     else -> "mixed"
+                }
+                if (DataStore.enableGameAutoStabilizer) {
+                    _hack_config_map["udp_timeout"] = "15s"
                 }
                 endpoint_independent_nat = true
                 mtu = DataStore.mtu
@@ -380,6 +383,9 @@ fun buildConfig(
 
                 // internal & external
                 currentOutbound.apply {
+                    if (DataStore.enableGameAutoStabilizer) {
+                        _hack_config_map["tcp_fast_open"] = true
+                    }
                     // udp over tcp
                     try {
                         val sUoT = bean.javaClass.getField("sUoT").get(bean)

@@ -154,6 +154,7 @@ class SettingsPreferenceFragment : PreferenceFragmentCompat() {
         showDirectSpeed.onPreferenceChangeListener = reloadListener
         trafficSniffing.onPreferenceChangeListener = reloadListener
         enableTlsFragment.onPreferenceChangeListener = reloadListener
+        findPreference<SwitchPreference>("enable_game_auto_stabilizer")!!.onPreferenceChangeListener = reloadListener
         bypassLan.onPreferenceChangeListener = reloadListener
         bypassLanInCore.onPreferenceChangeListener = reloadListener
         mtu.onPreferenceChangeListener = reloadListener
