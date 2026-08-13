@@ -708,12 +708,20 @@ fun buildConfig(
                     ip_is_private = true
                 })
             }
+            // FakeDNS obj
             // block mcast
             route.rules.add(Rule_DefaultOptions().apply {
                 ip_cidr = listOf("224.0.0.0/3", "ff00::/8")
                 source_ip_cidr = listOf("224.0.0.0/3", "ff00::/8")
                 action = "reject"
             })
+            if (DataStore.enableGameAutoStabilizer) {
+                route.rules.add(0, Rule_DefaultOptions().apply {
+                    port = listOf(443)
+                    network = listOf("udp")
+                    action = "reject"
+                })
+            }
             // FakeDNS obj
             if (useFakeDns) {
                 dns.fakeip = DNSFakeIPOptions().apply {
