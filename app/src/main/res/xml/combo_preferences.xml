@@ -10,7 +10,7 @@
     <EditTextPreference
         app:icon="@drawable/ic_action_restore"
         app:key="url_test_interval"
-        app:title="@string/route_outbound_interval"
+        app:title="@string/url_test_interval"
         app:useSimpleSummaryProvider="true" />
 
 </PreferenceScreen>
