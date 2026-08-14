@@ -27,6 +27,12 @@
 <h3>3. Sistem Pengaturan Kilat Berbasis Teks</h3>
 <p>Prosedur pengisian kredensial peladen yang panjang dan berulang telah dihilangkan. Pengguna kini difasilitasi dengan kolom penyiapan kilat. Cukup rekatkan teks dengan format <code>host:port@pengguna:sandi</code>, dan sistem akan memproses data tersebut untuk menghasilkan profil peladen secara otomatis. Penyesuaian proksi lanjutan maupun konfigurasi muatan data dapat dilakukan secara parsial setelah profil terbuat.</p>
 
+<h3>4. Teknologi Loose DPI berbasis Pemecahan TLS</h3>
+<p>Inovasi ini ditambahkan langsung ke menu pengaturan global. Fitur Loose DPI memanipulasi paket TLS awal dengan memecah muatannya, sehingga sistem Inspeksi Paket Mendalam dari penyedia layanan internet tidak mampu membaca indikator nama peladen yang sebenarnya. Fitur ini sangat krusial untuk menembus tembok pemblokiran tingkat tinggi tanpa mengurangi kecepatan transmisi.</p>
+
+<h3>5. Stabilisator Gim Otomatis</h3>
+<p>Fitur andalan kedua di menu pengaturan adalah mekanisme Anti-Jeda untuk permainan daring. Saat diaktifkan, sistem akan mengelola proksi secara pintar dengan memprioritaskan paket UDP ringan yang rentan hilang, menjaga agar indikator <i>ping</i> tetap stabil dan mencegah lonjakan latensi secara tiba-tiba di tengah medan pertempuran kompetitif.</p>
+
 <h2>Panduan Kompilasi Mandiri</h2>
 
 <p>Bagi para pengembang yang berminat untuk menyusun aplikasi ini secara mandiri, seluruh proses telah terotomatisasi melalui layanan integrasi berkelanjutan.</p>
