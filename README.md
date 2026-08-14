@@ -19,6 +19,15 @@ sing-box / universal proxy toolchain for Android.
 **The Google Play version has been controlled by a third party since May 2024 and is a non-open
 source version. Please do not download it.**
 
+## NekoBox Custom Build Features
+
+Versi ini adalah modifikasi tingkat lanjut dengan fitur eksklusif untuk kebutuhan tunneling dan gaming pro:
+
+*   **Game Auto Stabilizer:** Memblokir protokol QUIC UDP 443 dan mematikan traffic sniffing untuk menjamin ping sekecil mungkin tanpa lag spike.
+*   **Native SSH HTTP Custom Injector:** Mesin injektor TCP lokal yang tertanam langsung di dalam aplikasi. Mendukung injeksi payload HTTP kustom untuk SSH secara mandiri tanpa memerlukan aplikasi pihak ketiga.
+*   **Anti-Deadlock Routing:** Bypass pintar yang memastikan IP CDN atau Bug tidak terjebak dalam routing loop VPN.
+*   **Enhanced Backup Sync:** Semua field payload kustom tersimpan aman dalam file backup JSON.
+
 ## 更新日志 & Telegram 发布频道 / Changelog & Telegram Channel
 
 https://t.me/Matsuridayo
