@@ -1,110 +1,24 @@
-# NekoBox for Android
+# NekoBox Custom SSH Injection
 
-[![API](https://img.shields.io/badge/API-21%2B-brightgreen.svg?style=flat)](https://android-arsenal.com/api?level=21)
-[![Releases](https://img.shields.io/github/v/release/MatsuriDayo/NekoBoxForAndroid)](https://github.com/MatsuriDayo/NekoBoxForAndroid/releases)
-[![License: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-orange.svg)](https://www.gnu.org/licenses/gpl-3.0)
+NekoBox versi modifikasi khusus ini merupakan aplikasi VPN serbaguna yang menggabungkan kemampuan V2Ray tangguh dengan fitur injeksi SSH kustom dalam satu antarmuka yang mulus.
 
-sing-box / universal proxy toolchain for Android.
+## Fitur Utama
 
-一款使用 sing-box 的 Android 通用代理软件.
+* **Sistem Navigasi Swipe Baru**: Beralih antara profil V2Ray dan SSH dengan sangat mudah hanya dengan menggeser layar ke kanan atau ke kiri. Tidak ada lagi menu yang membingungkan.
+* **Injeksi SSH Mandiri**: Berbeda dengan aplikasi lain yang harus menginstal mesin inti tambahan, versi ini menyematkan modul proksi SSH kustom ke dalam inti Sing-box bawaan. Ini membuat aplikasi berjalan sangat ringan dan menghemat RAM ponsel Anda.
+* **Fitur Quick Setup SSH**: Tidak perlu lagi mengisi formulir panjang. Cukup tempelkan kredensial SSH dengan format "host:port@user:password" pada halaman SSH dan aplikasi akan otomatis membuatkan profil untuk Anda.
+* **Pemecahan Kebuntuan Koneksi**: Algoritma injektor telah diperbarui untuk mencegah koneksi macet saat melakukan streaming berat atau bermain gim daring. 
 
-## 下载 / Downloads
+## Cara Membangun Aplikasi
 
-[![GitHub All Releases](https://img.shields.io/github/downloads/Matsuridayo/NekoBoxForAndroid/total?label=downloads-total&logo=github&style=flat-square)](https://github.com/Matsuridayo/NekoBoxForAndroid/releases)
+Aplikasi ini menggunakan sistem otomatis Github Actions. 
 
-[GitHub Releases 下载](https://github.com/Matsuridayo/NekoBoxForAndroid/releases)
+1. Lakukan *fork* atau *push* kode terbaru ke repositori utama.
+2. Buka tab Actions di Github.
+3. Pilih alur kerja bernama "Release Build".
+4. Klik tombol "Run workflow" dan ketikkan nama rilis contoh: v1.0.0.
+5. Github akan otomatis membangun file APK lengkap untuk semua arsitektur ponsel pintar dan mengunggahnya ke halaman Releases.
 
-**Google Play 版本自 2024 年 5 月起已被第三方控制，为非开源版本，请不要下载。**
+## Penafian
 
-**The Google Play version has been controlled by a third party since May 2024 and is a non-open
-source version. Please do not download it.**
-
-## NekoBox Custom Build Features
-
-Versi ini adalah modifikasi tingkat lanjut dengan fitur eksklusif untuk kebutuhan tunneling dan gaming pro:
-
-*   **Game Auto Stabilizer:** Memblokir protokol QUIC UDP 443 dan mematikan traffic sniffing untuk menjamin ping sekecil mungkin tanpa lag spike.
-*   **Native SSH HTTP Custom Injector:** Mesin injektor TCP lokal yang tertanam langsung di dalam aplikasi. Mendukung injeksi payload HTTP kustom untuk SSH secara mandiri tanpa memerlukan aplikasi pihak ketiga.
-*   **Anti-Deadlock Routing:** Bypass pintar yang memastikan IP CDN atau Bug tidak terjebak dalam routing loop VPN.
-*   **Enhanced Backup Sync:** Semua field payload kustom tersimpan aman dalam file backup JSON.
-
-## 更新日志 & Telegram 发布频道 / Changelog & Telegram Channel
-
-https://t.me/Matsuridayo
-
-## 项目主页 & 文档 / Homepage & Documents
-
-https://matsuridayo.github.io
-
-## 支持的代理协议 / Supported Proxy Protocols
-
-* SOCKS (4/4a/5)
-* HTTP(S)
-* SSH
-* Shadowsocks
-* VMess
-* Trojan
-* VLESS
-* AnyTLS
-* ShadowTLS
-* TUIC
-* Hysteria 1/2
-* WireGuard
-* Trojan-Go (trojan-go-plugin)
-* NaïveProxy (naive-plugin)
-* Mieru (mieru-plugin)
-
-请到[这里](https://matsuridayo.github.io/nb4a-plugin/)下载插件以获得完整的代理支持.
-
-Please visit [here](https://matsuridayo.github.io/nb4a-plugin/) to download plugins for full proxy
-supports.
-
-## 支持的订阅格式 / Supported Subscription Format
-
-* 一些广泛使用的格式 (如 Shadowsocks, ClashMeta 和 v2rayN)
-* sing-box 出站
-
-仅支持解析出站，即节点。分流规则等信息会被忽略。
-
-* Some widely used formats (like Shadowsocks, ClashMeta and v2rayN)
-* sing-box outbound
-
-Only resolving outbound, i.e. nodes, is supported. Information such as diversion rules are ignored.
-
-## 捐助 / Donate
-
-<details>
-
-如果这个项目对您有帮助, 可以通过捐赠的方式帮助我们维持这个项目.
-
-捐赠满等额 50 USD 可以在「[捐赠榜](https://mtrdnt.pages.dev/donation_list)」显示头像, 如果您未被添加到这里,
-欢迎联系我们补充.
-
-Donations of 50 USD or more can display your avatar on
-the [Donation List](https://mtrdnt.pages.dev/donation_list). If you are not added here, please
-contact us to add it.
-
-USDT TRC20
-
-`TRhnA7SXE5Sap5gSG3ijxRmdYFiD4KRhPs`
-
-XMR
-
-`49bwESYQjoRL3xmvTcjZKHEKaiGywjLYVQJMUv79bXonGiyDCs8AzE3KiGW2ytTybBCpWJUvov8SjZZEGg66a4e59GXa6k5`
-
-</details>
-
-## Credits
-
-Core:
-
-- [SagerNet/sing-box](https://github.com/SagerNet/sing-box)
-
-Android GUI:
-
-- [shadowsocks/shadowsocks-android](https://github.com/shadowsocks/shadowsocks-android)
-- [SagerNet/SagerNet](https://github.com/SagerNet/SagerNet)
-
-Web Dashboard:
-
-- [Yacd-meta](https://github.com/MetaCubeX/Yacd-meta)
+Proyek ini dibangun berdasarkan NekoBoxForAndroid sumber terbuka. Modifikasi ini dibuat untuk keperluan kustomisasi antarmuka dan kemudahan injeksi SSH. Segala bentuk penyalahgunaan aplikasi merupakan tanggung jawab masing-masing pengguna.
