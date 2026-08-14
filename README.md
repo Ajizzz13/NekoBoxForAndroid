@@ -2,10 +2,10 @@
   <img src="logo.png" width="128" alt="ZeBox Logo">
   
   <h1>ZeBox Master Edition</h1>
-  <em>Klien proksi hibrida tingkat lanjut dengan antarmuka dinamis</em>
+  <em>Klien proksi VPN canggih dengan antarmuka yang mudah digunakan</em>
   <br><br>
   
-  <a href="https://github.com/Ajizzz13/NekoBoxForAndroid/releases"><img src="https://img.shields.io/github/v/release/Ajizzz13/NekoBoxForAndroid?style=flat-square&color=success" alt="Rilis Terbaru"></a>
+  <a href="https://github.com/Ajizzz13/NekoBoxForAndroid/releases"><img src="https://img.shields.io/github/v/tag/Ajizzz13/NekoBoxForAndroid?label=Rilis%20Terbaru&style=flat-square&color=success" alt="Rilis Terbaru"></a>
   <a href="https://github.com/Ajizzz13/NekoBoxForAndroid/actions/workflows/release.yml"><img src="https://img.shields.io/github/actions/workflow/status/Ajizzz13/NekoBoxForAndroid/release.yml?style=flat-square&color=brightgreen" alt="Status Kompilasi"></a>
   <a href="https://github.com/Ajizzz13/NekoBoxForAndroid/releases"><img src="https://img.shields.io/github/downloads/Ajizzz13/NekoBoxForAndroid/total?style=flat-square&color=blue" alt="Total Unduhan"></a>
 
