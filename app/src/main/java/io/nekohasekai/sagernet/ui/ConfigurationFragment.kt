@@ -224,21 +224,23 @@ class ConfigurationFragment @JvmOverloads constructor(
 
             if (fragment != null) {
                 val selectedProxy = selectedItem?.id ?: DataStore.selectedProxy
-                val selectedProfileIndex =
-                    fragment.indexOf(selectedProxy)
-                if (selectedProfileIndex != -1) {
-                    val layoutManager = fragment.layoutManager
-                    val first = layoutManager.findFirstVisibleItemPosition()
-                    val last = layoutManager.findLastVisibleItemPosition()
-
-                    if (selectedProfileIndex !in first..last) {
-                        fragment.configurationListView.scrollTo(selectedProfileIndex, true)
-                        return@setOnClickListener
+                val adapter = fragment.getAdapterFor(selectedProxy)
+                val rv = adapter?.recyclerView
+                val index = adapter?.configurationIdList?.indexOf(selectedProxy) ?: -1
+                
+                if (index != -1 && rv != null) {
+                    val layoutManager = rv.layoutManager as? LinearLayoutManager
+                    if (layoutManager != null) {
+                        val first = layoutManager.findFirstVisibleItemPosition()
+                        val last = layoutManager.findLastVisibleItemPosition()
+                        if (index !in first..last) {
+                            rv.scrollToPosition(index)
+                            return@setOnClickListener
+                        }
                     }
-
                 }
-
-                fragment.configurationListView.scrollTo(0)
+                fragment.adapterV2ray?.recyclerView?.scrollToPosition(0)
+                fragment.adapterSsh?.recyclerView?.scrollToPosition(0)
             }
 
         }
@@ -277,7 +279,8 @@ class ConfigurationFragment @JvmOverloads constructor(
 
     override fun onKeyDown(ketCode: Int, event: KeyEvent): Boolean {
         val fragment = getCurrentGroupFragment()
-        fragment?.configurationListView?.apply {
+        val currentAdapter = if (fragment?.viewPager?.currentItem == 0) fragment.adapterV2ray else fragment?.adapterSsh
+        currentAdapter?.recyclerView?.apply {
             if (!hasFocus()) requestFocus()
         }
         return super.onKeyDown(ketCode, event)
@@ -514,7 +517,7 @@ class ConfigurationFragment @JvmOverloads constructor(
                                 .setMessage(R.string.delete_confirm_prompt)
                                 .setPositiveButton(R.string.yes) { _, _ ->
                                     for (profile in toClear) {
-                                        adapter.groupFragments[DataStore.selectedGroup]?.adapter?.apply {
+                                        adapter.groupFragments[DataStore.selectedGroup]?.getAdapterFor(profile.id)?.apply {
                                             val index = configurationIdList.indexOf(profile.id)
                                             if (index >= 0) {
                                                 configurationIdList.removeAt(index)
@@ -566,7 +569,7 @@ class ConfigurationFragment @JvmOverloads constructor(
                                 )
                                 .setPositiveButton(R.string.yes) { _, _ ->
                                     for (profile in toClear) {
-                                        adapter.groupFragments[DataStore.selectedGroup]?.adapter?.apply {
+                                        adapter.groupFragments[DataStore.selectedGroup]?.getAdapterFor(profile.id)?.apply {
                                             val index = configurationIdList.indexOf(profile.id)
                                             if (index >= 0) {
                                                 configurationIdList.removeAt(index)
@@ -1167,6 +1170,12 @@ class ConfigurationFragment @JvmOverloads constructor(
             if (index == -1) index = adapterSsh?.configurationIdList?.indexOf(profileId) ?: -1
             return index
         }
+        
+        fun getAdapterFor(profileId: Long): ConfigurationAdapter? {
+            if (adapterV2ray?.configurationIdList?.contains(profileId) == true) return adapterV2ray
+            if (adapterSsh?.configurationIdList?.contains(profileId) == true) return adapterSsh
+            return null
+        }
 
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
             if (!::proxyGroup.isInitialized) return
@@ -1560,9 +1569,9 @@ class ConfigurationFragment @JvmOverloads constructor(
                     notifyDataSetChanged()
 
                     if (selectedProfileIndex != -1) {
-                        configurationListView.scrollTo(selectedProfileIndex, true)
+                        recyclerView?.scrollToPosition(selectedProfileIndex)
                     } else if (newProfiles.isNotEmpty()) {
-                        configurationListView.scrollTo(0, true)
+                        recyclerView?.scrollToPosition(0)
                     }
 
                 }
@@ -1705,7 +1714,7 @@ class ConfigurationFragment @JvmOverloads constructor(
                 }
 
                 removeButton.setOnClickListener {
-                    adapter?.let {
+                    this@ConfigurationAdapter.let {
                         val index = it.configurationIdList.indexOf(proxyEntity.id)
                         it.remove(index)
                         undoManager.remove(index to proxyEntity)
