@@ -1563,7 +1563,7 @@ class ConfigurationFragment @JvmOverloads constructor(
                     selectedProfileIndex = newProfileIds.indexOf(selectedProxy)
                 }
 
-                onMainDispatcher {
+                android.os.Handler(android.os.Looper.getMainLooper()).post {
                     configurationIdList.clear()
                     configurationIdList.addAll(newProfileIds)
                     notifyDataSetChanged()
