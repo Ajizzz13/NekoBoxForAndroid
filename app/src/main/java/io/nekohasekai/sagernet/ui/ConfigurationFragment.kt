@@ -1293,11 +1293,12 @@ class ConfigurationFragment @JvmOverloads constructor(
                 }
             }
         }
-
-        }
-
         override fun onDestroy() {
-            adapter?.let {
+            adapterV2ray?.let {
+                ProfileManager.removeListener(it)
+                GroupManager.removeListener(it)
+            }
+            adapterSsh?.let {
                 ProfileManager.removeListener(it)
                 GroupManager.removeListener(it)
             }
