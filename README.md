@@ -5,9 +5,9 @@
   <em>Klien proksi VPN canggih dengan antarmuka yang mudah digunakan</em>
   <br><br>
   
-  <a href="https://github.com/Ajizzz13/NekoBoxForAndroid/releases/tag/v1.0.4"><img src="https://img.shields.io/github/v/tag/Ajizzz13/NekoBoxForAndroid?label=Rilis%20Terbaru&color=blue&style=flat-square" alt="Rilis Terbaru"></a>
+  <a href="https://github.com/Ajizzz13/NekoBoxForAndroid/releases/tag/v1.0.5"><img src="https://img.shields.io/github/v/tag/Ajizzz13/NekoBoxForAndroid?label=Rilis%20Terbaru&color=blue&style=flat-square" alt="Rilis Terbaru"></a>
   <a href="https://github.com/Ajizzz13/NekoBoxForAndroid/actions"><img src="https://img.shields.io/github/actions/workflow/status/Ajizzz13/NekoBoxForAndroid/preview.yml?branch=main&label=Status%20Kompilasi&style=flat-square" alt="Status Kompilasi"></a>
-  <a href="https://github.com/Ajizzz13/NekoBoxForAndroid/releases/tag/v1.0.4"><img src="https://img.shields.io/github/downloads/Ajizzz13/NekoBoxForAndroid/v1.0.4/total?label=Total%20Unduhan&color=brightgreen&style=flat-square" alt="Total Unduhan"></a>
+  <a href="https://github.com/Ajizzz13/NekoBoxForAndroid/releases/tag/v1.0.5"><img src="https://img.shields.io/github/downloads/Ajizzz13/NekoBoxForAndroid/v1.0.5/total?label=Total%20Unduhan&color=brightgreen&style=flat-square" alt="Total Unduhan"></a>
 
   <br><br>
   <a href="#ikhtisar">Ikhtisar</a> • <a href="#fitur-andalan">Fitur Andalan</a> • <a href="#kompilasi-mandiri">Kompilasi Mandiri</a>
