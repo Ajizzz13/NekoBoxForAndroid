@@ -1,51 +1,54 @@
 <div align="center">
+  <img src="logo.png" width="128" alt="ZeBox Logo">
   
-<h1>NekoBox V2Ray & SSH Master Edition</h1>
+  <h1>ZeBox Master Edition</h1>
+  <em>Klien proksi hibrida tingkat lanjut dengan antarmuka dinamis</em>
+  <br><br>
+  
+  <a href="https://github.com/Ajizzz13/NekoBoxForAndroid/releases"><img src="https://img.shields.io/github/v/release/Ajizzz13/NekoBoxForAndroid?style=flat-square&color=success" alt="Rilis Terbaru"></a>
+  <a href="https://github.com/Ajizzz13/NekoBoxForAndroid/actions/workflows/release.yml"><img src="https://img.shields.io/github/actions/workflow/status/Ajizzz13/NekoBoxForAndroid/release.yml?style=flat-square&color=brightgreen" alt="Status Kompilasi"></a>
+  <a href="https://github.com/Ajizzz13/NekoBoxForAndroid/releases"><img src="https://img.shields.io/github/downloads/Ajizzz13/NekoBoxForAndroid/total?style=flat-square&color=blue" alt="Total Unduhan"></a>
 
-<a href="https://github.com/Ajizzz13/NekoBoxForAndroid/releases"><img src="https://img.shields.io/github/v/release/Ajizzz13/NekoBoxForAndroid?style=for-the-badge&color=success" alt="Rilis Terbaru"/></a>
-<a href="https://github.com/Ajizzz13/NekoBoxForAndroid/releases"><img src="https://img.shields.io/github/downloads/Ajizzz13/NekoBoxForAndroid/total?style=for-the-badge&color=blue" alt="Total Unduhan"/></a>
-<a href="https://github.com/Ajizzz13/NekoBoxForAndroid/actions/workflows/release.yml"><img src="https://img.shields.io/github/actions/workflow/status/Ajizzz13/NekoBoxForAndroid/release.yml?style=for-the-badge&color=brightgreen" alt="Status Kompilasi"/></a>
-
-<p>Sebuah klien proksi hibrida tingkat lanjut yang mengintegrasikan protokol V2Ray dan arsitektur Secure Shell secara langsung ke dalam inti Sing-box. Proyek ini dikembangkan untuk memberikan efisiensi tinggi serta stabilitas jaringan yang absolut dalam satu antarmuka terpadu.</p>
-
+  <br><br>
+  <a href="#ikhtisar">Ikhtisar</a> • <a href="#fitur-andalan">Fitur Andalan</a> • <a href="#kompilasi-mandiri">Kompilasi Mandiri</a>
 </div>
 
-<hr/>
+<hr>
 
-<h2>Ikhtisar Proyek</h2>
+## Ikhtisar
 
-<p>Klien NekoBox berbasis Sing-box pada umumnya memerlukan konfigurasi pihak ketiga tambahan untuk dapat mengakomodasi protokol SSH secara optimal. Proyek modifikasi ini dirancang secara khusus guna memecahkan keterbatasan tersebut. Melalui pendekatan rekayasa perangkat lunak tingkat rendah, kami telah menanamkan modul injeksi SSH secara permanen ke dalam sistem inti, sehingga memangkas penggunaan memori perangkat keras secara drastis sembari mempertahankan kinerja transmisi data pada tingkat maksimal.</p>
+ZeBox merupakan modifikasi klien proksi mutakhir berbasis Sing-box yang dirancang khusus untuk memecahkan keterbatasan konfigurasi jaringan konvensional. Proyek ini mengintegrasikan protokol V2Ray dan arsitektur Secure Shell secara langsung ke dalam satu sistem inti. Melalui pendekatan rekayasa tingkat rendah, aplikasi ini memangkas konsumsi memori secara drastis sembari mempertahankan kinerja transmisi data pada tingkat maksimal.
 
-<h2>Fitur Andalan Eksklusif</h2>
+> [!NOTE]  
+> Versi ini dibangun secara eksklusif untuk memberikan keseimbangan antara efisiensi sumber daya dan keandalan koneksi proksi kelas atas.
 
-<h3>1. Antarmuka Pemisah Ruang Kerja Interaktif</h3>
-<p>Sistem navigasi telah dirancang ulang untuk memisahkan profil V2Ray dan SSH secara fisik melalui mekanisme antarmuka usap. Pengguna hanya perlu menggeser layar ke kiri atau ke kanan untuk beralih antara ruang kerja proksi modern dan ruang kerja SSH. Desain ini menghilangkan ambiguitas operasional dan mempercepat manajemen peladen.</p>
+## Fitur Andalan
 
-<h3>2. Modul Injeksi SSH Internal Terintegrasi</h3>
-<p>Implementasi SSH pada aplikasi ini dibangun dan dieksekusi secara mandiri tanpa bergantung pada paket aplikasi eksternal. Infrastruktur ini memastikan koneksi yang sangat stabil untuk aktivitas berselancar di dunia maya, menembus batasan dinding api jaringan, serta melakukan transmisi media beresolusi tinggi tanpa latensi yang berarti. <i>Catatan: Berkaitan dengan spesifikasi protokol, pengguna sangat disarankan untuk beralih ke ruang kerja V2Ray apabila membutuhkan transmisi berbasis UDP secara konstan, seperti pada aktivitas permainan daring berintensitas tinggi.</i></p>
+### 1. Antarmuka Ruang Kerja Interaktif
+Sistem navigasi dirancang ulang untuk memisahkan profil V2Ray dan SSH secara fisik melalui mekanisme usap layar. Desain ini menghilangkan ambiguitas operasional dan mempercepat manajemen peladen secara drastis.
 
-<h3>3. Sistem Pengaturan Kilat Berbasis Teks</h3>
-<p>Prosedur pengisian kredensial peladen yang panjang dan berulang telah dihilangkan. Pengguna kini difasilitasi dengan kolom penyiapan kilat. Cukup rekatkan teks dengan format <code>host:port@pengguna:sandi</code>, dan sistem akan memproses data tersebut untuk menghasilkan profil peladen secara otomatis. Penyesuaian proksi lanjutan maupun konfigurasi muatan data dapat dilakukan secara parsial setelah profil terbuat.</p>
+### 2. Modul Injeksi SSH Internal
+Implementasi SSH dieksekusi secara mandiri tanpa bergantung pada aplikasi eksternal. Infrastruktur ini memastikan koneksi yang sangat stabil untuk aktivitas jaringan berat. 
 
-<h3>4. Teknologi Loose DPI berbasis Pemecahan TLS</h3>
-<p>Inovasi ini ditambahkan langsung ke menu pengaturan global. Fitur Loose DPI memanipulasi paket TLS awal dengan memecah muatannya, sehingga sistem Inspeksi Paket Mendalam dari penyedia layanan internet tidak mampu membaca indikator nama peladen yang sebenarnya. Fitur ini sangat krusial untuk menembus tembok pemblokiran tingkat tinggi tanpa mengurangi kecepatan transmisi.</p>
+> [!WARNING]  
+> Pengguna disarankan untuk beralih ke ruang kerja V2Ray apabila membutuhkan transmisi berbasis UDP secara konstan, khususnya pada permainan daring kompetitif.
 
-<h3>5. Stabilisator Gim Otomatis</h3>
-<p>Fitur andalan kedua di menu pengaturan adalah mekanisme Anti-Jeda untuk permainan daring. Saat diaktifkan, sistem akan mengelola proksi secara pintar dengan memprioritaskan paket UDP ringan yang rentan hilang, menjaga agar indikator <i>ping</i> tetap stabil dan mencegah lonjakan latensi secara tiba-tiba di tengah medan pertempuran kompetitif.</p>
+### 3. Sistem Pengaturan Kilat
+Prosedur pengisian kredensial peladen yang berulang telah dihilangkan. Pengguna dapat merekatkan teks berformat `host:port@pengguna:sandi`, dan sistem akan menciptakan profil peladen secara otomatis dalam sekejap mata.
 
-<h2>Panduan Kompilasi Mandiri</h2>
+### 4. Teknologi Loose DPI
+Fitur khusus pada pengaturan ini memanipulasi paket komunikasi awal dengan memecah muatan TLS. Hal ini membuat sistem Inspeksi Paket Mendalam dari penyedia layanan internet tidak mampu menganalisis indikator peladen yang sebenarnya.
 
-<p>Bagi para pengembang yang berminat untuk menyusun aplikasi ini secara mandiri, seluruh proses telah terotomatisasi melalui layanan integrasi berkelanjutan.</p>
+### 5. Stabilisator Gim Otomatis
+Mekanisme Anti-Jeda tingkat lanjut yang mengelola proksi secara pintar dengan memprioritaskan lalu lintas data krusial, menjaga stabilitas latensi, dan mencegah lonjakan secara tiba-tiba di tengah sesi permainan.
 
-<ol>
-  <li>Lakukan penyalinan repositori ini ke akun GitHub pribadi Anda.</li>
-  <li>Buka menu <b>Actions</b> pada bilah navigasi repositori.</li>
-  <li>Pilih skema alur kerja <b>Release Build</b>.</li>
-  <li>Jalankan skema tersebut dan tentukan nama versi rilis pada kolom yang disediakan.</li>
-  <li>Sistem GitHub Actions akan segera memproses kode sumber dan mengompilasi paket APK untuk seluruh arsitektur prosesor secara paralel.</li>
-  <li>Unduh berkas instalasi dari halaman rilis setelah proses kompilasi dinyatakan selesai.</li>
-</ol>
+## Kompilasi Mandiri
 
-<h2>Pernyataan Lisensi dan Penafian</h2>
+Bagi pengembang yang berminat untuk menyusun aplikasi ini secara mandiri, seluruh proses telah terotomatisasi melalui layanan integrasi berkelanjutan.
 
-<p>Proyek ini dibangun bersandarkan pada fondasi sumber terbuka NekoBoxForAndroid beserta inti Sing-box. Hak cipta atas sistem dasar sepenuhnya merupakan milik para pengembang asli. Modifikasi struktural dan penambahan fitur SSH ini didedikasikan secara terbuka untuk komunitas jaringan global. Segala bentuk penyalahgunaan fungsi perangkat lunak ini merupakan tanggung jawab absolut masing-masing pengguna akhir.</p>
+1. Lakukan penyalinan repositori ini ke akun GitHub pribadi Anda.
+2. Buka menu **Actions** pada bilah navigasi repositori.
+3. Pilih skema alur kerja **Release Build**.
+4. Jalankan skema tersebut dan tentukan nama versi rilis.
+5. Sistem akan segera mengompilasi paket APK untuk seluruh arsitektur prosesor.
+6. Unduh berkas instalasi dari halaman rilis setelah proses kompilasi selesai.
