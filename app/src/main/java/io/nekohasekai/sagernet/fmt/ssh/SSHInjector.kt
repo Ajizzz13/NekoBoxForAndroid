@@ -121,7 +121,28 @@ object SSHInjector {
                 Logs.i("Injecting payload:\n$formattedPayload")
                 remoteSocket.outputStream.write(formattedPayload.toByteArray())
                 remoteSocket.outputStream.flush()
-                // We will just splice directly! The SSH client will send its handshake, and we forward it.
+                
+                // Read proxy response if the payload looks like HTTP (e.g. GET, CONNECT)
+                if (formattedPayload.contains("HTTP/", ignoreCase = true)) {
+                    val input = remoteSocket.inputStream
+                    var buf = ByteArray(4)
+                    var index = 0
+                    while (true) {
+                        val b = input.read()
+                        if (b == -1) break
+                        buf[index % 4] = b.toByte()
+                        index++
+                        if (index >= 4) {
+                            if (buf[(index - 4) % 4] == '\r'.code.toByte() &&
+                                buf[(index - 3) % 4] == '\n'.code.toByte() &&
+                                buf[(index - 2) % 4] == '\r'.code.toByte() &&
+                                buf[(index - 1) % 4] == '\n'.code.toByte()) {
+                                Logs.i("Consumed HTTP proxy response headers")
+                                break
+                            }
+                        }
+                    }
+                }
             }
 
             // 3. Splice streams
