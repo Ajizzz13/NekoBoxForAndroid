@@ -215,10 +215,6 @@ class AppManagerActivity : ThemedActivity() {
             setHomeAsUpIndicator(R.drawable.ic_navigation_close)
         }
 
-        if (!DataStore.proxyApps) {
-            DataStore.proxyApps = true
-        }
-
         binding.bypassGroup.check(if (DataStore.bypass) R.id.appProxyModeBypass else R.id.appProxyModeOn)
         binding.bypassGroup.setOnCheckedChangeListener { _, checkedId ->
             when (checkedId) {

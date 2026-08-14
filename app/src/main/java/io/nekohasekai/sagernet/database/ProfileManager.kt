@@ -191,14 +191,14 @@ object ProfileManager {
                     port = "443",
                     network = "udp",
                     outbound = -2
-                )
+                ), false
             )
             createRule(
                 RuleEntity(
                     name = app.getString(R.string.route_opt_block_ads),
                     domains = "geosite:category-ads-all",
                     outbound = -2
-                )
+                ), false
             )
             val fuckedCountry = mutableListOf("cn:中国")
             if (Locale.getDefault().country != Locale.CHINA.country) {

@@ -122,36 +122,61 @@ object SSHInjector {
                 remoteSocket.outputStream.write(formattedPayload.toByteArray())
                 remoteSocket.outputStream.flush()
                 
-                // Read proxy response if the payload looks like HTTP (e.g. GET, CONNECT)
+                // Read proxy response ONLY if it's an HTTP response
                 if (formattedPayload.contains("HTTP/", ignoreCase = true)) {
-                    val input = remoteSocket.inputStream
-                    var buf = ByteArray(4)
-                    var index = 0
-                    while (true) {
-                        val b = input.read()
-                        if (b == -1) break
-                        buf[index % 4] = b.toByte()
-                        index++
-                        if (index >= 4) {
-                            if (buf[(index - 4) % 4] == '\r'.code.toByte() &&
-                                buf[(index - 3) % 4] == '\n'.code.toByte() &&
-                                buf[(index - 2) % 4] == '\r'.code.toByte() &&
-                                buf[(index - 1) % 4] == '\n'.code.toByte()) {
-                                Logs.i("Consumed HTTP proxy response headers")
-                                break
+                    val input = java.io.BufferedInputStream(remoteSocket.inputStream)
+                    input.mark(10)
+                    val header = ByteArray(4)
+                    val readBytes = input.read(header)
+                    input.reset()
+                    
+                    if (readBytes >= 4 && String(header).uppercase().startsWith("HTTP")) {
+                        Logs.i("HTTP response detected from proxy, stripping headers...")
+                        var buf = ByteArray(4)
+                        var index = 0
+                        while (true) {
+                            val b = input.read()
+                            if (b == -1) break
+                            buf[index % 4] = b.toByte()
+                            index++
+                            if (index >= 4) {
+                                if (buf[(index - 4) % 4] == '\r'.code.toByte() &&
+                                    buf[(index - 3) % 4] == '\n'.code.toByte() &&
+                                    buf[(index - 2) % 4] == '\r'.code.toByte() &&
+                                    buf[(index - 1) % 4] == '\n'.code.toByte()) {
+                                    Logs.i("Consumed HTTP proxy response headers")
+                                    break
+                                }
                             }
                         }
+                    } else {
+                        Logs.i("Proxy response does not start with HTTP (starts with ${String(header)}). Proceeding directly to splice.")
                     }
+                    
+                    // Proceed to splice with the BufferedInputStream so we don't lose bytes
+                    val job1 = kotlinx.coroutines.GlobalScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+                        try {
+                            copyStream(clientSocket.inputStream, remoteSocket.outputStream, "Client -> Remote")
+                        } catch (e: Exception) {}
+                    }
+                    val job2 = kotlinx.coroutines.GlobalScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+                        try {
+                            copyStream(input, clientSocket.outputStream, "Remote -> Client")
+                        } catch (e: Exception) {}
+                    }
+                    job1.join()
+                    job2.join()
+                    return@withContext
                 }
             }
 
-            // 3. Splice streams
-            val job1 = GlobalScope.launch(Dispatchers.IO) {
+            // 3. Splice streams (for non-payload cases or non-HTTP cases)
+            val job1 = kotlinx.coroutines.GlobalScope.launch(kotlinx.coroutines.Dispatchers.IO) {
                 try {
                     copyStream(clientSocket.inputStream, remoteSocket.outputStream, "Client -> Remote")
                 } catch (e: Exception) {}
             }
-            val job2 = GlobalScope.launch(Dispatchers.IO) {
+            val job2 = kotlinx.coroutines.GlobalScope.launch(kotlinx.coroutines.Dispatchers.IO) {
                 try {
                     copyStream(remoteSocket.inputStream, clientSocket.outputStream, "Remote -> Client")
                 } catch (e: Exception) {}
