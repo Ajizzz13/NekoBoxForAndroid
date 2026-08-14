@@ -4,6 +4,7 @@ import moe.matsuri.nb4a.SingBoxOptions
 import moe.matsuri.nb4a.utils.listByLineOrComma
 
 fun buildSingBoxOutboundSSHBean(bean: SSHBean): SingBoxOptions.Outbound_SSHOptions {
+    io.nekohasekai.sagernet.ktx.Logs.i("SSH Config Check: payload='${bean.payload}' proxyHost='${bean.proxyHost}' proxyPort='${bean.proxyPort}' useTls='${bean.useTls}' sni='${bean.sni}'")
     return SingBoxOptions.Outbound_SSHOptions().apply {
         type = "ssh"
         if (bean.payload?.isNotBlank() == true || bean.proxyHost?.isNotBlank() == true || bean.useTls == true) {
