@@ -1714,10 +1714,12 @@ class ConfigurationFragment @JvmOverloads constructor(
                 }
 
                 removeButton.setOnClickListener {
-                    this@ConfigurationAdapter.let {
-                        val index = it.configurationIdList.indexOf(proxyEntity.id)
-                        it.remove(index)
-                        undoManager.remove(index to proxyEntity)
+                    getAdapterFor(proxyEntity.id)?.let { adapter ->
+                        val index = adapter.configurationIdList.indexOf(proxyEntity.id)
+                        if (index >= 0) {
+                            adapter.remove(index)
+                            undoManager.remove(index to proxyEntity)
+                        }
                     }
                 }
 
