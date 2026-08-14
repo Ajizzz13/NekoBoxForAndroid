@@ -649,6 +649,7 @@ fun buildConfig(
         })
 
         // Bypass Lookup for the first profile
+        val directIPForce = mutableListOf<String>()
         bypassDNSBeans.forEach {
             var serverAddr = it.serverAddress
 
@@ -658,9 +659,20 @@ fun buildConfig(
                 config["server"]?.apply {
                     serverAddr = toString()
                 }
+            } else if (it is io.nekohasekai.sagernet.fmt.ssh.SSHBean) {
+                // For SSH with HTTP Custom Proxy, we MUST bypass the proxyHost too!
+                if (!it.proxyHost.isNullOrBlank()) {
+                    if (it.proxyHost!!.isIpAddress()) {
+                        directIPForce.add(it.proxyHost!!)
+                    } else {
+                        domainListDNSDirectForce.add("full:${it.proxyHost}")
+                    }
+                }
             }
 
-            if (!serverAddr.isIpAddress()) {
+            if (serverAddr.isIpAddress()) {
+                directIPForce.add(serverAddr)
+            } else {
                 domainListDNSDirectForce.add("full:${serverAddr}")
             }
         }
@@ -733,6 +745,12 @@ fun buildConfig(
                 route.rules.add(Rule_DefaultOptions().apply {
                     outbound = TAG_BYPASS
                     ip_is_private = true
+                })
+            }
+            if (directIPForce.isNotEmpty()) {
+                route.rules.add(0, Rule_DefaultOptions().apply {
+                    ip_cidr = directIPForce.map { if (it.contains(":")) "$it/128" else "$it/32" }
+                    outbound = TAG_DIRECT
                 })
             }
             // FakeDNS obj
