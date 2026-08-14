@@ -1,6 +1,6 @@
 package io.nekohasekai.sagernet.fmt.ssh
 
-import io.nekohasekai.sagernet.Logs
+import io.nekohasekai.sagernet.ktx.Logs
 import kotlinx.coroutines.*
 import java.io.InputStream
 import java.io.OutputStream
