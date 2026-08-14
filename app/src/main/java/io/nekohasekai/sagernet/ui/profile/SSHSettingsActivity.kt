@@ -24,6 +24,11 @@ class SSHSettingsActivity : ProfileSettingsActivity<SSHBean>() {
         DataStore.serverPrivateKey = privateKey
         DataStore.serverPassword1 = privateKeyPassphrase
         DataStore.serverCertificates = publicKey
+        DataStore.configurationStore.putString("customPayload", payload)
+        DataStore.configurationStore.putString("proxyHost", proxyHost)
+        DataStore.configurationStore.putString("proxyPort", proxyPort.toString())
+        DataStore.configurationStore.putBoolean("useTls", useTls)
+        DataStore.configurationStore.putString("sni", sni)
     }
 
     override fun SSHBean.serialize() {
@@ -44,6 +49,11 @@ class SSHSettingsActivity : ProfileSettingsActivity<SSHBean>() {
             }
         }
         publicKey = DataStore.serverCertificates
+        payload = DataStore.configurationStore.getString("customPayload", "") ?: ""
+        proxyHost = DataStore.configurationStore.getString("proxyHost", "") ?: ""
+        proxyPort = DataStore.configurationStore.getString("proxyPort", "0")?.toIntOrNull() ?: 0
+        useTls = DataStore.configurationStore.getBoolean("useTls", false)
+        sni = DataStore.configurationStore.getString("sni", "") ?: ""
     }
 
     override fun PreferenceFragmentCompat.createPreferences(
@@ -71,6 +81,9 @@ class SSHSettingsActivity : ProfileSettingsActivity<SSHBean>() {
         authType.setOnPreferenceChangeListener { _, newValue ->
             updateAuthType((newValue as String).toInt())
             true
+        }
+        findPreference<EditTextPreference>("proxyPort")?.apply {
+            setOnBindEditTextListener(EditTextPreferenceModifiers.Port)
         }
     }
 

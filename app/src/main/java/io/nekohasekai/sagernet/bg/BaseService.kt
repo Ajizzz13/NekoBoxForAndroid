@@ -248,6 +248,7 @@ class BaseService {
                 // we use a coroutineScope here to allow clean-up in parallel
                 coroutineScope {
                     killProcesses()
+                    io.nekohasekai.sagernet.fmt.ssh.SSHInjector.stop()
                     val data = data
                     if (data.closeReceiverRegistered) {
                         unregisterReceiver(data.receiver)

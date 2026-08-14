@@ -6,8 +6,22 @@ import moe.matsuri.nb4a.utils.listByLineOrComma
 fun buildSingBoxOutboundSSHBean(bean: SSHBean): SingBoxOptions.Outbound_SSHOptions {
     return SingBoxOptions.Outbound_SSHOptions().apply {
         type = "ssh"
-        server = bean.serverAddress
-        server_port = bean.serverPort
+        if (bean.payload?.isNotBlank() == true || bean.proxyHost?.isNotBlank() == true || bean.useTls == true) {
+            SSHInjector.start(
+                bean.proxyHost ?: "",
+                bean.proxyPort ?: 0,
+                bean.payload ?: "",
+                bean.sni ?: "",
+                bean.useTls == true,
+                bean.serverAddress,
+                bean.serverPort ?: 22
+            )
+            server = "127.0.0.1"
+            server_port = SSHInjector.localPort
+        } else {
+            server = bean.serverAddress
+            server_port = bean.serverPort
+        }
         user = bean.username
         if (bean.publicKey.isNotBlank()) {
             host_key = bean.publicKey.listByLineOrComma()

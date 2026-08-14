@@ -57,5 +57,31 @@
             app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
 
+    <PreferenceCategory app:title="Payload &amp; Proxy">
+        <EditTextPreference
+            app:icon="@drawable/ic_action_description"
+            app:key="customPayload"
+            app:title="Custom Payload"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            app:icon="@drawable/ic_hardware_router"
+            app:key="proxyHost"
+            app:title="Proxy Host (IP)"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            app:icon="@drawable/ic_maps_directions_boat"
+            app:key="proxyPort"
+            app:title="Proxy Port"
+            app:useSimpleSummaryProvider="true" />
+        <androidx.preference.SwitchPreferenceCompat
+            app:icon="@drawable/ic_baseline_security_24"
+            app:key="useTls"
+            app:title="Use SSL/TLS" />
+        <EditTextPreference
+            app:icon="@drawable/ic_action_copyright"
+            app:key="sni"
+            app:title="SNI / Bug Host"
+            app:useSimpleSummaryProvider="true" />
+    </PreferenceCategory>
 
 </PreferenceScreen>

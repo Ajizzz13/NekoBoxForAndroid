@@ -23,6 +23,13 @@ public class SSHBean extends AbstractBean {
     public String privateKeyPassphrase;
     public String publicKey;
 
+    // v1
+    public String payload;
+    public String proxyHost;
+    public Integer proxyPort;
+    public String sni;
+    public Boolean useTls;
+
     @Override
     public void initializeDefaultValues() {
         if (serverPort == null) serverPort = 22;
@@ -35,11 +42,16 @@ public class SSHBean extends AbstractBean {
         if (privateKey == null) privateKey = "";
         if (privateKeyPassphrase == null) privateKeyPassphrase = "";
         if (publicKey == null) publicKey = "";
+        if (payload == null) payload = "";
+        if (proxyHost == null) proxyHost = "";
+        if (proxyPort == null) proxyPort = 0;
+        if (sni == null) sni = "";
+        if (useTls == null) useTls = false;
     }
 
     @Override
     public void serialize(ByteBufferOutput output) {
-        output.writeInt(0);
+        output.writeInt(1); // version 1
         super.serialize(output);
         output.writeString(username);
         output.writeInt(authType);
@@ -55,6 +67,11 @@ public class SSHBean extends AbstractBean {
                 break;
         }
         output.writeString(publicKey);
+        output.writeString(payload);
+        output.writeString(proxyHost);
+        output.writeInt(proxyPort);
+        output.writeString(sni);
+        output.writeBoolean(useTls);
     }
 
     @Override
@@ -75,6 +92,13 @@ public class SSHBean extends AbstractBean {
                 break;
         }
         publicKey = input.readString();
+        if (version >= 1) {
+            payload = input.readString();
+            proxyHost = input.readString();
+            proxyPort = input.readInt();
+            sni = input.readString();
+            useTls = input.readBoolean();
+        }
     }
 
     @NotNull
