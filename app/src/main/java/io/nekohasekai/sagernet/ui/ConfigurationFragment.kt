@@ -910,7 +910,7 @@ class ConfigurationFragment @JvmOverloads constructor(
         }
     }
 
-    inner class GroupPagerAdapter : FragmentStateAdapter(this),
+    inner class GroupPagerAdapter : FragmentStateAdapter(childFragmentManager, viewLifecycleOwner.lifecycle),
         ProfileManager.Listener,
         GroupManager.Listener {
 
@@ -1563,7 +1563,7 @@ class ConfigurationFragment @JvmOverloads constructor(
                     selectedProfileIndex = newProfileIds.indexOf(selectedProxy)
                 }
 
-                recyclerView?.post {
+                onMainDispatcher {
                     configurationIdList.clear()
                     configurationIdList.addAll(newProfileIds)
                     notifyDataSetChanged()
