@@ -155,7 +155,7 @@ class ConfigurationFragment @JvmOverloads constructor(
     }
 
     override fun onQueryTextChange(query: String): Boolean {
-        getCurrentGroupFragment()?.adapter?.filter(query)
+        getCurrentGroupFragment()?.filter(query)
         return false
     }
 
@@ -225,7 +225,7 @@ class ConfigurationFragment @JvmOverloads constructor(
             if (fragment != null) {
                 val selectedProxy = selectedItem?.id ?: DataStore.selectedProxy
                 val selectedProfileIndex =
-                    fragment.adapter!!.configurationIdList.indexOf(selectedProxy)
+                    fragment.indexOf(selectedProxy)
                 if (selectedProfileIndex != -1) {
                     val layoutManager = fragment.layoutManager
                     val first = layoutManager.findFirstVisibleItemPosition()
@@ -1055,7 +1055,8 @@ class ConfigurationFragment @JvmOverloads constructor(
         }
 
         lateinit var undoManager: UndoSnackbarManager<ProxyEntity>
-        var adapter: ConfigurationAdapter? = null
+        var adapterV2ray: ConfigurationAdapter? = null
+        var adapterSsh: ConfigurationAdapter? = null
 
         override fun onSaveInstanceState(outState: Bundle) {
             super.onSaveInstanceState(outState)
@@ -1079,9 +1080,6 @@ class ConfigurationFragment @JvmOverloads constructor(
                 return DataStore.serviceState.let { it.canStop || it == BaseService.State.Stopped }
             }
 
-        lateinit var layoutManager: LinearLayoutManager
-        lateinit var configurationListView: RecyclerView
-
         val select by lazy {
             try {
                 (parentFragment as ConfigurationFragment).select
@@ -1102,16 +1100,11 @@ class ConfigurationFragment @JvmOverloads constructor(
         override fun onResume() {
             super.onResume()
 
-            if (::configurationListView.isInitialized && configurationListView.size == 0) {
-                configurationListView.adapter = adapter
-                runOnDefaultDispatcher {
-                    adapter?.reloadProfiles()
-                }
-            } else if (!::configurationListView.isInitialized) {
-                onViewCreated(requireView(), null)
+            runOnDefaultDispatcher {
+                adapterV2ray?.reloadProfiles()
+                adapterSsh?.reloadProfiles()
             }
             checkOrderMenu()
-            configurationListView.requestFocus()
         }
 
         fun checkOrderMenu() {
@@ -1161,115 +1154,145 @@ class ConfigurationFragment @JvmOverloads constructor(
             }
         }
 
-        var currentTabFilter = 0 // 0 = V2Ray, 1 = SSH
         lateinit var typeTabLayout: TabLayout
-        lateinit var quickSetupLayout: LinearLayout
-        lateinit var quickSetupInput: android.widget.EditText
-        lateinit var quickSetupApply: android.widget.Button
+        lateinit var viewPager: androidx.viewpager2.widget.ViewPager2
+
+        fun filter(query: String) {
+            adapterV2ray?.filter(query)
+            adapterSsh?.filter(query)
+        }
+
+        fun indexOf(profileId: Long): Int {
+            var index = adapterV2ray?.configurationIdList?.indexOf(profileId) ?: -1
+            if (index == -1) index = adapterSsh?.configurationIdList?.indexOf(profileId) ?: -1
+            return index
+        }
 
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
             if (!::proxyGroup.isInitialized) return
 
-            configurationListView = view.findViewById(R.id.configuration_list)
             typeTabLayout = view.findViewById(R.id.type_tab_layout)
-            quickSetupLayout = view.findViewById(R.id.quick_setup_layout)
-            quickSetupInput = view.findViewById(R.id.quick_setup_input)
-            quickSetupApply = view.findViewById(R.id.quick_setup_apply)
+            viewPager = view.findViewById(R.id.view_pager)
 
-            typeTabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-                override fun onTabSelected(tab: TabLayout.Tab) {
-                    currentTabFilter = tab.position
-                    quickSetupLayout.isVisible = currentTabFilter == 1
-                    adapter?.reloadProfiles()
+            adapterV2ray = ConfigurationAdapter(0)
+            adapterSsh = ConfigurationAdapter(1)
+
+            ProfileManager.addListener(adapterV2ray!!)
+            GroupManager.addListener(adapterV2ray!!)
+            ProfileManager.addListener(adapterSsh!!)
+            GroupManager.addListener(adapterSsh!!)
+
+            viewPager.adapter = object : RecyclerView.Adapter<PageHolder>() {
+                override fun getItemCount() = 2
+
+                override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PageHolder {
+                    return PageHolder(
+                        LayoutInflater.from(parent.context)
+                            .inflate(R.layout.layout_profile_page, parent, false)
+                    )
                 }
-                override fun onTabUnselected(tab: TabLayout.Tab) {}
-                override fun onTabReselected(tab: TabLayout.Tab) {}
-            })
 
-            quickSetupApply.setOnClickListener {
-                val text = quickSetupInput.text.toString().trim()
-                if (text.isNotBlank()) {
-                    try {
-                        val atSplit = text.split("@")
-                        val hostPort = atSplit[0].split(":")
-                        val userPass = atSplit[1].split(":")
-                        val host = hostPort[0]
-                        val port = hostPort[1].toInt()
-                        val user = userPass[0]
-                        val pass = userPass.drop(1).joinToString(":")
-                        
-                        runOnDefaultDispatcher {
-                           val bean = io.nekohasekai.sagernet.fmt.ssh.SSHBean()
-                           bean.serverAddress = host
-                           bean.serverPort = port
-                           bean.username = user
-                           bean.password = pass
-                           bean.authType = 1
-                           bean.name = "SSH $host"
-                           
-                           ProfileManager.createProfile(proxyGroup.id, bean)
-                           
-                           onMainDispatcher {
-                               quickSetupInput.text.clear()
-                               (requireActivity() as? MainActivity)?.snackbar("Quick Setup SSH Berhasil!")?.show()
-                           }
+                override fun onBindViewHolder(holder: PageHolder, position: Int) {
+                    holder.bind(position)
+                }
+            }
+
+            TabLayoutMediator(typeTabLayout, viewPager) { tab, position ->
+                tab.text = if (position == 0) "V2Ray" else "SSH"
+            }.attach()
+        }
+
+        inner class PageHolder(val view: View) : RecyclerView.ViewHolder(view) {
+            fun bind(position: Int) {
+                val configurationListView: RecyclerView = view.findViewById(R.id.configuration_list)
+                val quickSetupLayout: LinearLayout = view.findViewById(R.id.quick_setup_layout)
+                val quickSetupInput: android.widget.EditText = view.findViewById(R.id.quick_setup_input)
+                val quickSetupApply: android.widget.Button = view.findViewById(R.id.quick_setup_apply)
+
+                quickSetupLayout.isVisible = position == 1
+
+                quickSetupApply.setOnClickListener {
+                    val text = quickSetupInput.text.toString().trim()
+                    if (text.isNotBlank()) {
+                        try {
+                            val atSplit = text.split("@")
+                            val hostPort = atSplit[0].split(":")
+                            val userPass = atSplit[1].split(":")
+                            val host = hostPort[0]
+                            val port = hostPort[1].toInt()
+                            val user = userPass[0]
+                            val pass = userPass.drop(1).joinToString(":")
+                            
+                            runOnDefaultDispatcher {
+                               val bean = io.nekohasekai.sagernet.fmt.ssh.SSHBean()
+                               bean.serverAddress = host
+                               bean.serverPort = port
+                               bean.username = user
+                               bean.password = pass
+                               bean.authType = 1
+                               bean.name = "SSH $host"
+                               
+                               ProfileManager.createProfile(proxyGroup.id, bean)
+                               
+                               onMainDispatcher {
+                                   quickSetupInput.text.clear()
+                                   (requireActivity() as? MainActivity)?.snackbar("Quick Setup SSH Berhasil!")?.show()
+                               }
+                            }
+                        } catch (e: Exception) {
+                            (requireActivity() as? MainActivity)?.snackbar("Format salah! host:port@user:pass")?.show()
                         }
-                    } catch (e: Exception) {
-                        (requireActivity() as? MainActivity)?.snackbar("Format salah! host:port@user:pass")?.show()
                     }
                 }
-            }
 
-            layoutManager = FixedLinearLayoutManager(configurationListView)
-            configurationListView.layoutManager = layoutManager
-            adapter = ConfigurationAdapter()
-            ProfileManager.addListener(adapter!!)
-            GroupManager.addListener(adapter!!)
-            configurationListView.adapter = adapter
-            configurationListView.setItemViewCacheSize(20)
+                val layoutManager = FixedLinearLayoutManager(configurationListView)
+                configurationListView.layoutManager = layoutManager
+                val currentAdapter = if (position == 0) adapterV2ray else adapterSsh
+                configurationListView.adapter = currentAdapter
+                configurationListView.setItemViewCacheSize(20)
 
-            if (!select) {
+                if (!select) {
+                    undoManager = UndoSnackbarManager(activity as MainActivity, currentAdapter!!)
 
-                undoManager = UndoSnackbarManager(activity as MainActivity, adapter!!)
-
-                ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(
-                    ItemTouchHelper.UP or ItemTouchHelper.DOWN, ItemTouchHelper.START
-                ) {
-                    override fun getSwipeDirs(
-                        recyclerView: RecyclerView,
-                        viewHolder: RecyclerView.ViewHolder,
-                    ): Int {
-                        return 0
-                    }
-
-                    override fun getDragDirs(
-                        recyclerView: RecyclerView,
-                        viewHolder: RecyclerView.ViewHolder,
-                    ) = if (isEnabled) super.getDragDirs(recyclerView, viewHolder) else 0
-
-                    override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                    }
-
-                    override fun onMove(
-                        recyclerView: RecyclerView,
-                        viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder,
-                    ): Boolean {
-                        adapter?.move(
-                            viewHolder.bindingAdapterPosition, target.bindingAdapterPosition
-                        )
-                        return true
-                    }
-
-                    override fun clearView(
-                        recyclerView: RecyclerView,
-                        viewHolder: RecyclerView.ViewHolder,
+                    ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(
+                        ItemTouchHelper.UP or ItemTouchHelper.DOWN, ItemTouchHelper.START
                     ) {
-                        super.clearView(recyclerView, viewHolder)
-                        adapter?.commitMove()
-                    }
-                }).attachToRecyclerView(configurationListView)
+                        override fun getSwipeDirs(
+                            recyclerView: RecyclerView,
+                            viewHolder: RecyclerView.ViewHolder,
+                        ): Int {
+                            return 0
+                        }
 
+                        override fun getDragDirs(
+                            recyclerView: RecyclerView,
+                            viewHolder: RecyclerView.ViewHolder,
+                        ) = if (isEnabled) super.getDragDirs(recyclerView, viewHolder) else 0
+
+                        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                        }
+
+                        override fun onMove(
+                            recyclerView: RecyclerView,
+                            viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder,
+                        ): Boolean {
+                            currentAdapter?.move(
+                                viewHolder.bindingAdapterPosition, target.bindingAdapterPosition
+                            )
+                            return true
+                        }
+
+                        override fun clearView(
+                            recyclerView: RecyclerView,
+                            viewHolder: RecyclerView.ViewHolder,
+                        ) {
+                            super.clearView(recyclerView, viewHolder)
+                            currentAdapter?.commitMove()
+                        }
+                    }).attachToRecyclerView(configurationListView)
+                }
             }
+        }
 
         }
 
@@ -1285,13 +1308,23 @@ class ConfigurationFragment @JvmOverloads constructor(
             undoManager.flush()
         }
 
-        inner class ConfigurationAdapter : RecyclerView.Adapter<ConfigurationHolder>(),
+        inner class ConfigurationAdapter(val tabFilter: Int) : RecyclerView.Adapter<ConfigurationHolder>(),
             ProfileManager.Listener,
             GroupManager.Listener,
             UndoSnackbarManager.Interface<ProxyEntity> {
 
             init {
                 setHasStableIds(true)
+            }
+
+            var recyclerView: RecyclerView? = null
+
+            override fun onAttachedToRecyclerView(rv: RecyclerView) {
+                recyclerView = rv
+            }
+
+            override fun onDetachedFromRecyclerView(rv: RecyclerView) {
+                recyclerView = null
             }
 
             var configurationIdList: MutableList<Long> = mutableListOf()
@@ -1385,7 +1418,7 @@ class ConfigurationFragment @JvmOverloads constructor(
 
             override fun undo(actions: List<Pair<Int, ProxyEntity>>) {
                 for ((index, item) in actions) {
-                    configurationListView.post {
+                    recyclerView?.post {
                         configurationList[item.id] = item
                         configurationIdList.add(index, item.id)
                         notifyItemInserted(index)
@@ -1405,7 +1438,7 @@ class ConfigurationFragment @JvmOverloads constructor(
             override suspend fun onAdd(profile: ProxyEntity) {
                 if (profile.groupId != proxyGroup.id) return
 
-                configurationListView.post {
+                recyclerView?.post {
                     if (::undoManager.isInitialized) {
                         undoManager.flush()
                     }
@@ -1420,7 +1453,7 @@ class ConfigurationFragment @JvmOverloads constructor(
                 if (profile.groupId != proxyGroup.id) return
                 val index = configurationIdList.indexOf(profile.id)
                 if (index < 0) return
-                configurationListView.post {
+                recyclerView?.post {
                     if (::undoManager.isInitialized) {
                         undoManager.flush()
                     }
@@ -1446,8 +1479,10 @@ class ConfigurationFragment @JvmOverloads constructor(
                 try {
                     val index = configurationIdList.indexOf(data.id)
                     if (index != -1) {
-                        val holder = layoutManager.findViewByPosition(index)
-                            ?.let { configurationListView.getChildViewHolder(it) } as ConfigurationHolder?
+                        val rv = recyclerView ?: return
+                        val lm = rv.layoutManager as? LinearLayoutManager ?: return
+                        val holder = lm.findViewByPosition(index)
+                            ?.let { rv.getChildViewHolder(it) } as ConfigurationHolder?
                         if (holder != null) {
                             onMainDispatcher {
                                 holder.bind(holder.entity, data)
@@ -1464,7 +1499,7 @@ class ConfigurationFragment @JvmOverloads constructor(
                 val index = configurationIdList.indexOf(profileId)
                 if (index < 0) return
 
-                configurationListView.post {
+                recyclerView?.post {
                     configurationIdList.removeAt(index)
                     configurationList.remove(profileId)
                     notifyItemRemoved(index)
@@ -1489,7 +1524,7 @@ class ConfigurationFragment @JvmOverloads constructor(
             fun reloadProfiles() {
                 var newProfiles = SagerDatabase.proxyDao.getByGroup(proxyGroup.id)
 
-                newProfiles = if (currentTabFilter == 1) {
+                newProfiles = if (tabFilter == 1) {
                     newProfiles.filter { it.type == io.nekohasekai.sagernet.database.ProxyEntity.TYPE_SSH }
                 } else {
                     newProfiles.filter { it.type != io.nekohasekai.sagernet.database.ProxyEntity.TYPE_SSH }
@@ -1518,7 +1553,7 @@ class ConfigurationFragment @JvmOverloads constructor(
                     selectedProfileIndex = newProfileIds.indexOf(selectedProxy)
                 }
 
-                configurationListView.post {
+                recyclerView?.post {
                     configurationIdList.clear()
                     configurationIdList.addAll(newProfileIds)
                     notifyDataSetChanged()
