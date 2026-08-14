@@ -62,6 +62,18 @@ object SSHInjector {
             val targetHost = if (proxyHost.isNotBlank()) proxyHost else sshHost
             val targetPort = if (proxyPort > 0) proxyPort else sshPort
             
+            // Resolve IP using underlying network to bypass VPN tunnel deadlock
+            val isIp = targetHost.matches(Regex("^[0-9.]+$|^[0-9a-fA-F:]+$"))
+            val ipAddress = if (isIp) {
+                targetHost
+            } else {
+                val network = io.nekohasekai.sagernet.SagerNet.underlyingNetwork
+                val resolved = network?.getAllByName(targetHost)?.firstOrNull()?.hostAddress 
+                    ?: java.net.InetAddress.getAllByName(targetHost).firstOrNull()?.hostAddress
+                    ?: targetHost
+                resolved
+            }
+
             // 1. Connect to target
             remoteSocket = if (useTls) {
                 val factory = SSLSocketFactory.getDefault() as SSLSocketFactory
@@ -76,13 +88,13 @@ object SSHInjector {
                 params.serverNames = listOf(SNIHostName(sniHost))
                 sslSocket.sslParameters = params
                 
-                sslSocket.connect(InetSocketAddress(targetHost, targetPort), 10000)
+                sslSocket.connect(InetSocketAddress(ipAddress, targetPort), 10000)
                 sslSocket.startHandshake()
                 sslSocket
             } else {
                 val socket = Socket()
                 io.nekohasekai.sagernet.database.DataStore.vpnService?.protect(socket)
-                socket.connect(InetSocketAddress(targetHost, targetPort), 10000)
+                socket.connect(InetSocketAddress(ipAddress, targetPort), 10000)
                 socket
             }
 
