@@ -122,6 +122,14 @@ object SSHInjector {
                 remoteSocket.outputStream.write(formattedPayload.toByteArray())
                 remoteSocket.outputStream.flush()
                 
+                // Start Client -> Remote forwarding immediately to prevent deadlock
+                // Some servers wait for client data (e.g., SSH banner) before responding
+                val job1 = kotlinx.coroutines.GlobalScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+                    try {
+                        copyStream(clientSocket.inputStream, remoteSocket.outputStream, "Client -> Remote")
+                    } catch (e: Exception) {}
+                }
+                
                 // Read proxy response ONLY if it's an HTTP response
                 if (formattedPayload.contains("HTTP/", ignoreCase = true)) {
                     val input = java.io.BufferedInputStream(remoteSocket.inputStream)
@@ -153,12 +161,7 @@ object SSHInjector {
                         Logs.i("Proxy response does not start with HTTP (starts with ${String(header)}). Proceeding directly to splice.")
                     }
                     
-                    // Proceed to splice with the BufferedInputStream so we don't lose bytes
-                    val job1 = kotlinx.coroutines.GlobalScope.launch(kotlinx.coroutines.Dispatchers.IO) {
-                        try {
-                            copyStream(clientSocket.inputStream, remoteSocket.outputStream, "Client -> Remote")
-                        } catch (e: Exception) {}
-                    }
+                    // Proceed to splice Remote -> Client with the BufferedInputStream
                     val job2 = kotlinx.coroutines.GlobalScope.launch(kotlinx.coroutines.Dispatchers.IO) {
                         try {
                             copyStream(input, clientSocket.outputStream, "Remote -> Client")
@@ -168,9 +171,19 @@ object SSHInjector {
                     job2.join()
                     return@withContext
                 }
+                
+                // If not HTTP, just splice Remote -> Client directly
+                val job2 = kotlinx.coroutines.GlobalScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+                    try {
+                        copyStream(remoteSocket.inputStream, clientSocket.outputStream, "Remote -> Client")
+                    } catch (e: Exception) {}
+                }
+                job1.join()
+                job2.join()
+                return@withContext
             }
 
-            // 3. Splice streams (for non-payload cases or non-HTTP cases)
+            // 3. Splice streams (for non-payload cases)
             val job1 = kotlinx.coroutines.GlobalScope.launch(kotlinx.coroutines.Dispatchers.IO) {
                 try {
                     copyStream(clientSocket.inputStream, remoteSocket.outputStream, "Client -> Remote")
