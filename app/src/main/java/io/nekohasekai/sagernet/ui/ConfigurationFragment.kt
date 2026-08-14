@@ -1161,10 +1161,65 @@ class ConfigurationFragment @JvmOverloads constructor(
             }
         }
 
+        var currentTabFilter = 0 // 0 = V2Ray, 1 = SSH
+        lateinit var typeTabLayout: TabLayout
+        lateinit var quickSetupLayout: LinearLayout
+        lateinit var quickSetupInput: android.widget.EditText
+        lateinit var quickSetupApply: android.widget.Button
+
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
             if (!::proxyGroup.isInitialized) return
 
             configurationListView = view.findViewById(R.id.configuration_list)
+            typeTabLayout = view.findViewById(R.id.type_tab_layout)
+            quickSetupLayout = view.findViewById(R.id.quick_setup_layout)
+            quickSetupInput = view.findViewById(R.id.quick_setup_input)
+            quickSetupApply = view.findViewById(R.id.quick_setup_apply)
+
+            typeTabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+                override fun onTabSelected(tab: TabLayout.Tab) {
+                    currentTabFilter = tab.position
+                    quickSetupLayout.isVisible = currentTabFilter == 1
+                    adapter?.reloadProfiles()
+                }
+                override fun onTabUnselected(tab: TabLayout.Tab) {}
+                override fun onTabReselected(tab: TabLayout.Tab) {}
+            })
+
+            quickSetupApply.setOnClickListener {
+                val text = quickSetupInput.text.toString().trim()
+                if (text.isNotBlank()) {
+                    try {
+                        val atSplit = text.split("@")
+                        val hostPort = atSplit[0].split(":")
+                        val userPass = atSplit[1].split(":")
+                        val host = hostPort[0]
+                        val port = hostPort[1].toInt()
+                        val user = userPass[0]
+                        val pass = userPass.drop(1).joinToString(":")
+                        
+                        runOnDefaultDispatcher {
+                           val bean = io.nekohasekai.sagernet.fmt.ssh.SSHBean()
+                           bean.serverAddress = host
+                           bean.serverPort = port
+                           bean.username = user
+                           bean.password = pass
+                           bean.authType = 1
+                           bean.name = "SSH $host"
+                           
+                           ProfileManager.createProfile(proxyGroup.id, bean)
+                           
+                           onMainDispatcher {
+                               quickSetupInput.text.clear()
+                               (requireActivity() as? MainActivity)?.snackbar("Quick Setup SSH Berhasil!")?.show()
+                           }
+                        }
+                    } catch (e: Exception) {
+                        (requireActivity() as? MainActivity)?.snackbar("Format salah! host:port@user:pass")?.show()
+                    }
+                }
+            }
+
             layoutManager = FixedLinearLayoutManager(configurationListView)
             configurationListView.layoutManager = layoutManager
             adapter = ConfigurationAdapter()
@@ -1433,6 +1488,13 @@ class ConfigurationFragment @JvmOverloads constructor(
 
             fun reloadProfiles() {
                 var newProfiles = SagerDatabase.proxyDao.getByGroup(proxyGroup.id)
+
+                newProfiles = if (currentTabFilter == 1) {
+                    newProfiles.filter { it.type == io.nekohasekai.sagernet.database.ProxyEntity.TYPE_SSH }
+                } else {
+                    newProfiles.filter { it.type != io.nekohasekai.sagernet.database.ProxyEntity.TYPE_SSH }
+                }
+
                 when (proxyGroup.order) {
                     GroupOrder.BY_NAME -> {
                         newProfiles = newProfiles.sortedBy { it.displayName() }
