@@ -1,6 +1,6 @@
 package io.nekohasekai.sagernet.fmt.ssh
 
-import io.nekohasekai.sagernet.bg.VpnService
+import io.nekohasekai.sagernet.Logs
 import kotlinx.coroutines.*
 import java.io.InputStream
 import java.io.OutputStream
@@ -11,7 +11,7 @@ import javax.net.ssl.SNIHostName
 import javax.net.ssl.SSLParameters
 import javax.net.ssl.SSLSocket
 import javax.net.ssl.SSLSocketFactory
-import io.nekohasekai.sagernet.SagerNet
+import kotlin.random.Random
 
 object SSHInjector {
 
@@ -29,20 +29,24 @@ object SSHInjector {
         sshHost: String,
         sshPort: Int
     ) {
-        stop() // ensure previous is stopped
-        serverSocket = ServerSocket(0)
-        localPort = serverSocket!!.localPort
+        stop()
+        
+        localPort = Random.nextInt(20000, 60000)
         
         job = GlobalScope.launch(Dispatchers.IO) {
             try {
+                serverSocket = ServerSocket(localPort)
+                Logs.i("SSHInjector", "Started local proxy server on port $localPort")
+                
                 while (isActive) {
                     val clientSocket = serverSocket?.accept() ?: break
+                    Logs.i("SSHInjector", "Accepted connection from sing-box")
                     launch {
                         handleClient(clientSocket, proxyHost, proxyPort, payload, sni, useTls, sshHost, sshPort)
                     }
                 }
             } catch (e: Exception) {
-                // Socket closed
+                Logs.e("SSHInjector", "Server socket error: ${e.message}", e)
             }
         }
     }
@@ -56,11 +60,13 @@ object SSHInjector {
         useTls: Boolean,
         sshHost: String,
         sshPort: Int
-    ) {
+    ) = withContext(Dispatchers.IO) {
         var remoteSocket: Socket? = null
         try {
             val targetHost = if (proxyHost.isNotBlank()) proxyHost else sshHost
             val targetPort = if (proxyPort > 0) proxyPort else sshPort
+            
+            Logs.i("SSHInjector", "Connecting to target: $targetHost:$targetPort (TLS: $useTls)")
             
             // Resolve IP using underlying network to bypass VPN tunnel deadlock
             val isIp = targetHost.matches(Regex("^[0-9.]+$|^[0-9a-fA-F:]+$"))
@@ -71,6 +77,7 @@ object SSHInjector {
                 val resolved = network?.getAllByName(targetHost)?.firstOrNull()?.hostAddress 
                     ?: java.net.InetAddress.getAllByName(targetHost).firstOrNull()?.hostAddress
                     ?: targetHost
+                Logs.i("SSHInjector", "Resolved $targetHost to $resolved")
                 resolved
             }
 
@@ -84,6 +91,7 @@ object SSHInjector {
                 
                 // Set SNI
                 val sniHost = if (sni.isNotBlank()) sni else targetHost
+                Logs.i("SSHInjector", "Setting SNI to: $sniHost")
                 val params = SSLParameters()
                 params.serverNames = listOf(SNIHostName(sniHost))
                 sslSocket.sslParameters = params
@@ -97,6 +105,7 @@ object SSHInjector {
                 socket.connect(InetSocketAddress(ipAddress, targetPort), 10000)
                 socket
             }
+            Logs.i("SSHInjector", "Connected to remote server successfully")
 
             // 2. Send payload if any
             if (payload.isNotBlank()) {
@@ -109,26 +118,21 @@ object SSHInjector {
                     .replace("\\r", "\r")
                     .replace("\\n", "\n")
                 
+                Logs.i("SSHInjector", "Injecting payload:\n$formattedPayload")
                 remoteSocket.outputStream.write(formattedPayload.toByteArray())
                 remoteSocket.outputStream.flush()
-                
-                // Wait for HTTP 200 OK (simple implementation: we just assume after sending payload, we can splice. 
-                // But normally we should read until \r\n\r\n if we are using CONNECT proxy). 
-                // For a robust injector, it reads the status line. 
-                // We will implement a basic read loop for CONNECT proxies if needed, 
-                // but many custom payloads just expect immediate bi-directional traffic after payload.
                 // We will just splice directly! The SSH client will send its handshake, and we forward it.
             }
 
             // 3. Splice streams
             val job1 = GlobalScope.launch(Dispatchers.IO) {
                 try {
-                    copyStream(clientSocket.inputStream, remoteSocket.outputStream)
+                    copyStream(clientSocket.inputStream, remoteSocket.outputStream, "Client -> Remote")
                 } catch (e: Exception) {}
             }
             val job2 = GlobalScope.launch(Dispatchers.IO) {
                 try {
-                    copyStream(remoteSocket.inputStream, clientSocket.outputStream)
+                    copyStream(remoteSocket.inputStream, clientSocket.outputStream, "Remote -> Client")
                 } catch (e: Exception) {}
             }
             
@@ -136,19 +140,24 @@ object SSHInjector {
             job2.join()
 
         } catch (e: Exception) {
-            e.printStackTrace()
+            Logs.e("SSHInjector", "Connection error: ${e.message}", e)
         } finally {
             try { clientSocket.close() } catch (_: Exception) {}
             try { remoteSocket?.close() } catch (_: Exception) {}
+            Logs.i("SSHInjector", "Connection closed")
         }
     }
 
-    private fun copyStream(input: InputStream, output: OutputStream) {
-        val buffer = ByteArray(8192)
-        var bytesRead: Int
-        while (input.read(buffer).also { bytesRead = it } != -1) {
-            output.write(buffer, 0, bytesRead)
-            output.flush()
+    private fun copyStream(input: InputStream, output: OutputStream, direction: String) {
+        try {
+            val buffer = ByteArray(8192)
+            var bytesRead: Int
+            while (input.read(buffer).also { bytesRead = it } != -1) {
+                output.write(buffer, 0, bytesRead)
+                output.flush()
+            }
+        } catch (e: Exception) {
+            Logs.e("SSHInjector", "Relay error ($direction): ${e.message}")
         }
     }
 
@@ -157,8 +166,11 @@ object SSHInjector {
         job = null
         try {
             serverSocket?.close()
-        } catch (_: Exception) {}
+        } catch (e: Exception) {
+            Logs.e("SSHInjector", "Error closing server socket: ${e.message}")
+        }
         serverSocket = null
         localPort = 0
+        Logs.i("SSHInjector", "Stopped local proxy server")
     }
 }
