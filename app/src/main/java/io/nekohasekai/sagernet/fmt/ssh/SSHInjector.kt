@@ -68,7 +68,7 @@ object SSHInjector {
                 val sslSocket = factory.createSocket() as SSLSocket
                 
                 // Protect socket from VPN loop
-                VpnService.instance?.protect(sslSocket)
+                io.nekohasekai.sagernet.database.DataStore.vpnService?.protect(sslSocket)
                 
                 // Set SNI
                 val sniHost = if (sni.isNotBlank()) sni else targetHost
@@ -81,7 +81,7 @@ object SSHInjector {
                 sslSocket
             } else {
                 val socket = Socket()
-                VpnService.instance?.protect(socket)
+                io.nekohasekai.sagernet.database.DataStore.vpnService?.protect(socket)
                 socket.connect(InetSocketAddress(targetHost, targetPort), 10000)
                 socket
             }
