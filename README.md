@@ -25,6 +25,15 @@ Versi ini dibangun secara eksklusif untuk memberikan keseimbangan absolut antara
 
 ---
 
+## Keunggulan Mesin Sing-box
+
+Dapur pacu utama aplikasi ini ditenagai oleh mesin Sing-box murni. Pemilihan fondasi ini memberikan keunggulan teknis yang luar biasa:
+- **Super Efisien:** Meminimalisir proses salin menyalin data secara tidak perlu, sehingga beban kerja prosesor sentral menjadi sangat ringan dan instan.
+- **Konsumsi Baterai Rendah:** Arsitektur mesin dirancang kuat untuk menolak pemborosan daya. Perangkat keras Anda akan tetap dingin meskipun aplikasi beroperasi secara maksimal selama berjam-jam.
+- **Sangat Stabil:** Rangkaian kode jaringan beroperasi paralel tanpa menahan antrean arus data. Transmisi internet tetap kokoh walau ponsel melintasi wilayah dengan tangkapan sinyal seluler yang lemah.
+
+---
+
 ## Diagram Alur Kerja Sistem
 
 Bagan berikut memvisualisasikan bagaimana arus jaringan Anda diamankan dan diteruskan melalui mesin ZeBox secara terstruktur.
