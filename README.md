@@ -10,84 +10,114 @@
   <a href="https://github.com/Ajizzz13/NekoBoxForAndroid/releases/tag/v1.0.6"><img src="https://img.shields.io/github/downloads/Ajizzz13/NekoBoxForAndroid/v1.0.6/total?label=Total%20Unduhan&color=brightgreen&style=flat-square" alt="Total Unduhan"></a>
 
   <br><br>
-  <a href="#-ikhtisar-proyek">Ikhtisar</a> • <a href="#-arsitektur-dan-fitur-utama">Fitur Utama</a> • <a href="#-panduan-mengunduh-apk">Panduan APK</a> • <a href="#-kompilasi-mandiri">Kompilasi</a>
+  <a href="#ikhtisar-proyek">Ikhtisar</a> • <a href="#diagram-alur-kerja-sistem">Alur Kerja</a> • <a href="#arsitektur-dan-fitur-utama">Fitur Utama</a> • <a href="#panduan-mengunduh-apk">Panduan APK</a> • <a href="#kompilasi-mandiri">Kompilasi</a>
 </div>
 
 <hr>
 
-## 📖 Ikhtisar Proyek
+## Ikhtisar Proyek
 
-**ZeBox** adalah modifikasi klien proksi mutakhir berbasis *Sing-box core* yang dirancang secara khusus untuk memecahkan berbagai keterbatasan konfigurasi jaringan konvensional. Diciptakan bagi para pengguna tingkat lanjut (*power user*), ZeBox mengintegrasikan kekuatan protokol proksi modern (V2Ray) dan keandalan klasik Secure Shell (SSH) ke dalam satu infrastruktur aplikasi yang sangat ringan.
+ZeBox adalah modifikasi klien proksi mutakhir yang dirancang secara khusus untuk memecahkan berbagai keterbatasan konfigurasi jaringan konvensional. Diciptakan bagi para pengguna tingkat lanjut, ZeBox mengintegrasikan kekuatan protokol proksi modern beserta keandalan klasik Secure Shell ke dalam satu infrastruktur aplikasi yang sangat ringan.
 
-Melalui pendekatan rekayasa tingkat rendah (penggunaan Go dan Kotlin murni), aplikasi ini memangkas konsumsi RAM dan daya baterai secara drastis sembari mempertahankan performa transmisi data yang agresif—memungkinkan Anda untuk berselancar, melakukan *streaming*, dan bermain *game online* tanpa hambatan *firewall* penyedia layanan internet.
+Melalui pendekatan rekayasa tingkat rendah, aplikasi ini memangkas konsumsi memori dan daya baterai secara drastis sembari mempertahankan performa transmisi data yang agresif. Anda dapat berselancar, melakukan penyiaran video, dan menjalankan permainan daring tanpa hambatan penyedia layanan internet.
 
-> [!NOTE]  
-> Versi ini dibangun secara eksklusif untuk memberikan keseimbangan absolut antara efisiensi sumber daya sistem (*zero-copy operation*) dan keandalan koneksi proksi kelas atas.
+Versi ini dibangun secara eksklusif untuk memberikan keseimbangan absolut antara efisiensi sumber daya sistem dan keandalan koneksi proksi kelas atas.
 
 ---
 
-## ✨ Arsitektur dan Fitur Utama
+## Diagram Alur Kerja Sistem
 
-ZeBox tidak sekadar menempelkan fitur baru; ia merombak cara aplikasi VPN beroperasi dari akarnya. Berikut adalah keunggulan utama dari ZeBox Master Edition:
+Bagan berikut memvisualisasikan bagaimana arus jaringan Anda diamankan dan diteruskan melalui mesin ZeBox secara terstruktur.
 
-### 1. Dual Workspace Interface (Antarmuka Ganda Dinamis)
-**Cara Kerja:** Sistem antarmuka aplikasi tidak menggunakan *Fragment* penumpuk konvensional, melainkan memanfaatkan arsitektur `ViewPager2` terpisah yang mengisolasi memori visual. Profil **V2Ray (Kiri)** dan profil **SSH (Kanan)** memiliki tabel *database* SQLite tersendiri. Ketika Anda menggeser layar (*swipe*), *Adapter* Kotlin hanya memuat (*lazy load*) entitas yang relevan dari ruang kerja tersebut, menghemat beban RAM (*garbage collection*) secara drastis saat mengelola ratusan akun proksi sekaligus.
+```mermaid
+graph TD
+    User[Pengguna] --> App[Aplikasi ZeBox]
+    App --> Route[Sistem Rute Cerdas]
+    Route --> V2Ray[Jalur Protokol V2Ray]
+    Route --> SSH[Jalur Protokol SSH]
+    SSH --> Injector[Modul Injektor Internal]
+    Injector --> Strip[Pembersihan Respon Header]
+    Strip --> Core[Mesin Utama Sing-box]
+    V2Ray --> Core
+    Core --> Out[Trafik Internet Bebas Hambatan]
+```
+
+---
+
+## Arsitektur dan Fitur Utama
+
+ZeBox merombak cara aplikasi VPN beroperasi dari akarnya. Berikut adalah penjelasan langkah demi langkah mengenai mekanisme setiap fitur utama dari ZeBox Master Edition:
+
+### 1. Dual Workspace Interface
+Langkah kerja:
+- Sistem membagi memori layar menjadi dua ruang kerja terpisah secara fisik.
+- Ruang pertama dikhususkan untuk menampung seluruh profil V2Ray.
+- Ruang kedua dikhususkan untuk menampung seluruh profil SSH.
+- Saat pengguna menggeser layar, mesin antarmuka hanya akan memuat profil yang sesuai dengan ruang kerja aktif.
+- Metode pembagian ini mencegah penumpukan sampah memori dan menjaga kestabilan perangkat secara drastis.
 
 ### 2. Native SSH HTTP Custom Injector
-**Cara Kerja (Arsitektur Core Deception):** Berbeda dengan proksi lawas yang harus ditumpuk silang dengan aplikasi HTTP Injector, ZeBox mengeksekusi *splicing* jaringan secara asinkron murni menggunakan *Kotlin Coroutines* di latar belakang.
-* **Header Stripping Otomatis:** Saat menghubungkan protokol SSH melalui WebSocket (Bug CDN), server CDN sering kali menyuntikkan respons teks HTTP tambahan (seperti `101 Switching Protocols`). Injektor ZeBox akan menyergap (*sniff*) trafik masuk ini menggunakan `BufferedInputStream`, "menelan" *header* HTTP yang mengotori alur, dan hanya meneruskan rentetan *handshake* bersih `SSH-2.0` langsung ke dalam *core Sing-box*. Hasilnya: *Bypass payload* bekerja 100% tanpa risiko kegagalan otentikasi SSH.
+Langkah kerja:
+- Pengguna memulai koneksi menuju peladen SSH.
+- Modul internal mencegat trafik tersebut sebelum keluar ke jaringan publik.
+- Modul akan menyuntikkan muatan teks kustom ke dalam lalu lintas data.
+- Sistem akan menyaring balasan dari peladen dan menelan respon teks yang tidak sesuai dengan standar SSH.
+- Arus data bersih kemudian diteruskan ke mesin utama untuk dienkripsi dengan sempurna.
 
-> [!WARNING]  
-> Saat ini, infrastruktur SSH beroperasi sangat tangguh pada protokol TCP (seperti pengunduhan file berat dan *streaming* 4K). Namun, protokol SSH konvensional kerap gagal memproses protokol *UDP-over-TCP* (untuk *game* kompetitif/MCPE). Oleh sebab itu, sangat disarankan memanfaatkan ruang kerja **V2Ray** untuk aktivitas *gaming*.
+### 3. Smart Import
+Langkah kerja:
+- Mesin pemindai memantau papan klip perangkat secara pasif.
+- Saat mendeteksi teks kredensial proksi, sistem secara pintar mengekstrak data penting seperti nama host dan kata sandi.
+- Sistem lalu merangkai data tersebut menjadi satu profil peladen yang utuh.
+- Profil langsung disimpan ke dalam pangkalan data tanpa menuntut pengisian manual dari pengguna.
 
-### 3. Smart Import (Parser Kredensial Pintar)
-**Cara Kerja:** ZeBox dilengkapi mesin ekspresi reguler (*Regex Engine*) terintegrasi yang terus memindai *clipboard* perangkat secara pasif saat Anda memfokuskan kursor ke dalam aplikasi. Ketika mendeteksi teks mentah berformat (contoh: `192.168.1.1:22@root:1234`), mesin pembelah string (*tokenizer*) akan langsung mengisolasi struktur *Host*, *Port*, *Username*, dan *Password*, kemudian melakukan injeksi SQL otomatis (*auto-commit*) ke *database* profil. Anda tidak perlu lagi menyalin dan merekatkan *field* satu per satu.
+### 4. Advanced Anti-DPI
+Langkah kerja:
+- Sistem mencegat paket perkenalan awal dari klien menuju peladen internet.
+- Paket data tersebut dipecah secara halus menjadi beberapa kepingan kecil.
+- Kepingan kecil ini dikirimkan ke menara seluler secara bergiliran.
+- Mesin pelacak penyedia layanan internet gagal merangkai ulang kepingan tersebut.
+- Pengguna berhasil menembus pemblokiran sistem jaringan secara mutlak.
 
-### 4. Advanced Anti-DPI & Loose SNI (Teknologi Tembus Batas)
-**Cara Kerja:** Sistem penyedia layanan internet menggunakan DPI (Inspeksi Paket Mendalam) untuk membongkar dan memutus paket TLS/SSL dengan melacak parameter `server_name` (SNI). ZeBox mengatasi ini di level *socket*:
-* **Fragmentasi Paket:** ZeBox memotong belah (*fragment*) jabat tangan TLS (*Client Hello*) menjadi dua hingga tiga serpihan mikro sebelum dikirim ke menara seluler (*BTS*).
-* Akibat pemecahan *byte* TCP ini, mesin pelacak (*radar*) DPI ISP tidak mampu merangkai ulang *string* SNI yang sesungguhnya karena paket datang tidak utuh (*loose*). Akses proksi tetap mulus melewati tembok *firewall* terkuat.
-
-### 5. Stabilisator Gim Otomatis (Graceful Wakelock)
-**Cara Kerja:** Android modern sering mematikan paksa ("*Force Kill*") aplikasi latar belakang saat Anda mengunci layar untuk menghemat daya (*Doze Mode*). 
-* ZeBox melingkari eksekusi *splicing* koneksi di dalam siklus hidup `VpnService` bawaan OS (status *Foreground* mutlak). 
-* Mesin mengaktifkan parameter `PARTIAL_WAKE_LOCK` di level `PowerManager`, yang memaksa CPU (*Central Processing Unit*) untuk menolak tidur, sehingga transmisi milidetik (*ping*) paket tetap diproses tepat waktu walau layar ponsel gelap gulita (*Anti-Bengong*).
-
----
-
-## 📦 Panduan Mengunduh APK
-
-ZeBox didistribusikan dalam berbagai versi arsitektur demi memastikan performa terbaik di setiap tipe ponsel. Agar tidak bingung saat memilih di halaman rilis, ikuti panduan berikut:
-
-1. **`arm64-v8a` (Sangat Direkomendasikan ⭐)**
-   * **Untuk siapa:** Hampir 95% *smartphone* Android modern keluaran 5-7 tahun terakhir (berbasis 64-bit).
-   * **Gunakan ini jika:** Anda menggunakan HP harian standar (seperti Samsung, Xiaomi, Oppo, Vivo, Realme tipe baru). Ini adalah opsi yang paling aman, paling ringan, dan performanya paling optimal.
-
-2. **`armeabi-v7a`**
-   * **Untuk siapa:** Ponsel Android lawas atau perangkat kelas bawah (*low-end*) yang masih menggunakan sistem 32-bit.
-   * **Gunakan ini jika:** Proses instalasi versi `arm64-v8a` di HP Anda ditolak dengan peringatan "App not installed".
-
-3. **`x86` / `x86_64`**
-   * **Untuk siapa:** Emulator Android di PC/Laptop (misal: BlueStacks, Nox, LDPlayer, Windows Subsystem for Android) atau perangkat ChromeOS.
-
-4. **`universal` (Semua Arsitektur)**
-   * **Untuk siapa:** Pengguna yang tidak mengetahui secara pasti tipe prosesor perangkatnya.
-   * **Gunakan ini jika:** Ingin "cari aman". Versi ini mencakup semua arsitektur di atas sehingga **pasti bisa dipasang di perangkat mana pun**. (Catatan: Ukuran berkas APK ini jauh lebih besar).
+### 5. Stabilisator Otomatis
+Langkah kerja:
+- Layar perangkat ditutup dan sistem operasi mencoba menidurkan semua aplikasi untuk menghemat baterai.
+- Modul latar belakang ZeBox segera mengambil alih kendali manajemen daya perangkat.
+- Sistem memaksa prosesor sentral untuk terus terjaga secara parsial.
+- Lalu lintas data tetap mengalir lancar tanpa pemutusan sepihak dari sistem operasi.
 
 ---
 
-## ⚙️ Kompilasi Mandiri (Untuk Pengembang)
+## Panduan Mengunduh APK
 
-Bagi pengembang (*modder*) yang berminat untuk menyusun, memodifikasi, dan membangun aplikasi ini secara mandiri, seluruh proses telah terotomatisasi di awan (*cloud*) melalui GitHub Actions.
+ZeBox didistribusikan dalam berbagai versi arsitektur demi memastikan performa terbaik di setiap tipe ponsel. Agar tidak bingung saat memilih di halaman rilis, perhatikan panduan berikut:
 
-1. Lakukan *fork* (*Fork repository*) repositori ini ke akun GitHub pribadi Anda.
-2. Navigasikan ke *tab* **Actions** pada bilah menu repositori.
-3. Pilih skema alur kerja bernama **Release Build** di panel sebelah kiri.
-4. Klik tombol **Run workflow** dan tentukan nama/tag versi rilis yang Anda inginkan (misal: `v2.0.0`).
-5. Sistem GitHub Actions akan segera bekerja, menyusun kepingan *Go* dan *Kotlin*, serta mengompilasi paket APK untuk seluruh arsitektur secara paralel.
-6. Anda dapat mengunduh berkas instalasi akhir di halaman **Releases** begitu seluruh proses tersebut selesai.
+1. **arm64-v8a**
+   Sangat direkomendasikan untuk ponsel cerdas modern keluaran terbaru. Ini adalah opsi yang paling aman, paling ringan, dan kinerjanya paling optimal.
+
+2. **armeabi-v7a**
+   Dikhususkan untuk perangkat ponsel cerdas generasi lawas kelas bawah. Gunakan opsi ini jika instalasi varian sebelumnya mengalami kegagalan.
+
+3. **x86 atau x86_64**
+   Didesain khusus untuk penggunaan pada emulator Android di komputer atau laptop.
+
+4. **universal**
+   Pilihan paling aman yang mencakup seluruh arsitektur mesin sekaligus. Opsi ini ditujukan bagi pengguna yang tidak mengetahui spesifikasi perangkat keras ponselnya.
+
+---
+
+## Kompilasi Mandiri
+
+Bagi pengembang yang berminat untuk menyusun aplikasi ini secara mandiri, proses telah terotomatisasi di awan. Berikut adalah panduannya:
+
+- Lakukan penyalinan repositori ini ke akun GitHub pribadi Anda.
+- Buka menu Actions pada bilah navigasi utama repositori.
+- Pilih skema alur kerja Release Build di panel sebelah kiri.
+- Jalankan skema tersebut dan tentukan nama versi rilis yang Anda inginkan.
+- Sistem akan segera mengompilasi paket instalasi untuk seluruh arsitektur prosesor.
+- Unduh berkas instalasi dari halaman rilis setelah seluruh rangkaian proses kompilasi tuntas.
 
 ---
 <div align="center">
-  <sub>Dibangun dengan ketelitian teknis, dedikasi, dan semangat *Open Source*.</sub>
+  <sub>Dibangun dengan ketelitian teknis, dedikasi, dan semangat sumber terbuka.</sub>
 </div>
