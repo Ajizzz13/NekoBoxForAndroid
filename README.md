@@ -31,24 +31,27 @@ Melalui pendekatan rekayasa tingkat rendah (penggunaan Go dan Kotlin murni), apl
 ZeBox tidak sekadar menempelkan fitur baru; ia merombak cara aplikasi VPN beroperasi dari akarnya. Berikut adalah keunggulan utama dari ZeBox Master Edition:
 
 ### 1. Dual Workspace Interface (Antarmuka Ganda Dinamis)
-Ucapkan selamat tinggal pada daftar profil peladen yang berantakan. Sistem navigasi ZeBox dirancang ulang dengan struktur **ViewPager2**, memisahkan profil **V2Ray (Kiri)** dan profil **SSH (Kanan)** secara fisik. Mekanisme usap layar (*swipe*) ini menghilangkan ambiguitas operasional dan mempercepat manajemen peladen secara drastis.
+**Cara Kerja:** Sistem antarmuka aplikasi tidak menggunakan *Fragment* penumpuk konvensional, melainkan memanfaatkan arsitektur `ViewPager2` terpisah yang mengisolasi memori visual. Profil **V2Ray (Kiri)** dan profil **SSH (Kanan)** memiliki tabel *database* SQLite tersendiri. Ketika Anda menggeser layar (*swipe*), *Adapter* Kotlin hanya memuat (*lazy load*) entitas yang relevan dari ruang kerja tersebut, menghemat beban RAM (*garbage collection*) secara drastis saat mengelola ratusan akun proksi sekaligus.
 
 ### 2. Native SSH HTTP Custom Injector
-Implementasi injeksi SSH di dalam ZeBox dieksekusi secara mandiri (*native*) tanpa membutuhkan aplikasi pihak ketiga seperti *HTTP Injector*.
-* Menggunakan arsitektur *Core Deception*, Injektor beroperasi murni melalui manipulasi soket internal, memungkinkan injeksi *header* kompleks (seperti *WebSocket Payload*) langsung menuju *core Sing-box*.
-* **Otomatisasi Header Stripping:** ZeBox secara cerdas membuang respons HTTP dari peladen Bug/CDN untuk mencegah kegagalan *handshake* pada SSH, membuat koneksi instan dan mulus.
+**Cara Kerja (Arsitektur Core Deception):** Berbeda dengan proksi lawas yang harus ditumpuk silang dengan aplikasi HTTP Injector, ZeBox mengeksekusi *splicing* jaringan secara asinkron murni menggunakan *Kotlin Coroutines* di latar belakang.
+* **Header Stripping Otomatis:** Saat menghubungkan protokol SSH melalui WebSocket (Bug CDN), server CDN sering kali menyuntikkan respons teks HTTP tambahan (seperti `101 Switching Protocols`). Injektor ZeBox akan menyergap (*sniff*) trafik masuk ini menggunakan `BufferedInputStream`, "menelan" *header* HTTP yang mengotori alur, dan hanya meneruskan rentetan *handshake* bersih `SSH-2.0` langsung ke dalam *core Sing-box*. Hasilnya: *Bypass payload* bekerja 100% tanpa risiko kegagalan otentikasi SSH.
 
 > [!WARNING]  
-> Untuk saat ini, infrastruktur SSH difokuskan untuk aktivitas *browsing* dan pengunduhan berat. Jika Anda membutuhkan transmisi berbasis UDP secara konstan (khususnya untuk panggilan video atau *game online* kompetitif kelas berat), sangat disarankan menggunakan ruang kerja **V2Ray**.
+> Saat ini, infrastruktur SSH beroperasi sangat tangguh pada protokol TCP (seperti pengunduhan file berat dan *streaming* 4K). Namun, protokol SSH konvensional kerap gagal memproses protokol *UDP-over-TCP* (untuk *game* kompetitif/MCPE). Oleh sebab itu, sangat disarankan memanfaatkan ruang kerja **V2Ray** untuk aktivitas *gaming*.
 
-### 3. Smart Import (Pengaturan Kilat)
-Prosedur pengisian kredensial peladen secara manual yang membosankan kini telah ditinggalkan. Pengguna cukup menyalin dan merekatkan teks mentah dengan format `host:port@pengguna:sandi`, dan sistem *parser* internal ZeBox akan mengekstrak informasi tersebut lalu menciptakan profil peladen SSH yang siap digunakan dalam sekejap mata.
+### 3. Smart Import (Parser Kredensial Pintar)
+**Cara Kerja:** ZeBox dilengkapi mesin ekspresi reguler (*Regex Engine*) terintegrasi yang terus memindai *clipboard* perangkat secara pasif saat Anda memfokuskan kursor ke dalam aplikasi. Ketika mendeteksi teks mentah berformat (contoh: `192.168.1.1:22@root:1234`), mesin pembelah string (*tokenizer*) akan langsung mengisolasi struktur *Host*, *Port*, *Username*, dan *Password*, kemudian melakukan injeksi SQL otomatis (*auto-commit*) ke *database* profil. Anda tidak perlu lagi menyalin dan merekatkan *field* satu per satu.
 
 ### 4. Advanced Anti-DPI & Loose SNI (Teknologi Tembus Batas)
-Penyedia layanan internet moderen menggunakan Inspeksi Paket Mendalam (DPI) untuk memblokir VPN. ZeBox dipersenjatai dengan fitur **Loose DPI**. Fitur ini memanipulasi rentetan paket TCP awal dan memecah (*fragment*) muatan TLS, membutakan radar sistem operator sehingga peladen VPN Anda yang sebenarnya tidak dapat dideteksi maupun diblokir.
+**Cara Kerja:** Sistem penyedia layanan internet menggunakan DPI (Inspeksi Paket Mendalam) untuk membongkar dan memutus paket TLS/SSL dengan melacak parameter `server_name` (SNI). ZeBox mengatasi ini di level *socket*:
+* **Fragmentasi Paket:** ZeBox memotong belah (*fragment*) jabat tangan TLS (*Client Hello*) menjadi dua hingga tiga serpihan mikro sebelum dikirim ke menara seluler (*BTS*).
+* Akibat pemecahan *byte* TCP ini, mesin pelacak (*radar*) DPI ISP tidak mampu merangkai ulang *string* SNI yang sesungguhnya karena paket datang tidak utuh (*loose*). Akses proksi tetap mulus melewati tembok *firewall* terkuat.
 
-### 5. Stabilisator Gim Otomatis
-Mengusung mekanisme "Anti-Bengong" tingkat lanjut, OS tidak akan diizinkan membunuh koneksi Anda. Fitur ini memprioritaskan paket lalu lintas data krusial, menjaga stabilitas latensi, serta mencegah *timeout* secara tiba-tiba di tengah sesi permainan yang intens melalui manajemen *wakelock* yang presisi di latar belakang.
+### 5. Stabilisator Gim Otomatis (Graceful Wakelock)
+**Cara Kerja:** Android modern sering mematikan paksa ("*Force Kill*") aplikasi latar belakang saat Anda mengunci layar untuk menghemat daya (*Doze Mode*). 
+* ZeBox melingkari eksekusi *splicing* koneksi di dalam siklus hidup `VpnService` bawaan OS (status *Foreground* mutlak). 
+* Mesin mengaktifkan parameter `PARTIAL_WAKE_LOCK` di level `PowerManager`, yang memaksa CPU (*Central Processing Unit*) untuk menolak tidur, sehingga transmisi milidetik (*ping*) paket tetap diproses tepat waktu walau layar ponsel gelap gulita (*Anti-Bengong*).
 
 ---
 
