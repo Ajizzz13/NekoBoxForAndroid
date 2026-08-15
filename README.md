@@ -80,7 +80,15 @@ Langkah kerja:
 - Sistem lalu merangkai data tersebut menjadi satu profil peladen yang utuh.
 - Profil langsung disimpan ke dalam pangkalan data tanpa menuntut pengisian manual dari pengguna.
 
-### 4. Advanced Anti-DPI
+### 4. Mode Kombo Cerdas
+Langkah kerja:
+- Sistem mendeteksi adanya kegagalan koneksi pada muatan teks injeksi utama saat percobaan awal menembus jaringan.
+- Alih-alih membiarkan koneksi terputus dan menampilkan pesan galat, mesin akan beralih ke rute muatan cadangan secara instan.
+- Modul injektor langsung menyuntikkan muatan teks sekunder ke dalam arus data tanpa menuntut interaksi manual dari pengguna.
+- Sistem segera mengevaluasi respon peladen, dan jika sukses, arus lalu lintas dipertahankan pada rute kombo tersebut.
+- Pengguna sama sekali tidak menyadari adanya kegagalan rute pertama karena proses peralihan terjadi dalam hitungan milidetik.
+
+### 5. Advanced Anti-DPI
 Langkah kerja:
 - Sistem mencegat paket perkenalan awal dari klien menuju peladen internet.
 - Paket data tersebut dipecah secara halus menjadi beberapa kepingan kecil.
@@ -88,7 +96,7 @@ Langkah kerja:
 - Mesin pelacak penyedia layanan internet gagal merangkai ulang kepingan tersebut.
 - Pengguna berhasil menembus pemblokiran sistem jaringan secara mutlak.
 
-### 5. Stabilisator Otomatis
+### 6. Stabilisator Otomatis
 Langkah kerja:
 - Layar perangkat ditutup dan sistem operasi mencoba menidurkan semua aplikasi untuk menghemat baterai.
 - Modul latar belakang ZeBox segera mengambil alih kendali manajemen daya perangkat.
